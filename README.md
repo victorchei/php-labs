@@ -12,6 +12,22 @@
 - [Профіль викладача](https://ztu.edu.ua/teacher/445.html)
 - [ORCID](https://orcid.org/0009-0001-4178-6631)
 
+## Швидкий старт
+
+Детальні інструкції встановлення для Windows, macOS та Linux: [setup/README.md](setup/README.md)
+
+### macOS / Linux
+
+```bash
+cd setup
+chmod +x install.sh
+./install.sh
+```
+
+### Windows
+
+Використовуйте WSL або Chocolatey — див. [setup/README.md](setup/README.md)
+
 ## Лабораторні роботи
 
 1. Базові конструкції мови PHP
