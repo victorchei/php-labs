@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-PHP educational labs repository for ZTU (Zhytomyr Ivan Franko State University) students.
+PHP labs for "Server Technologies and Backend Development" course at Zhytomyr Polytechnic State University.
+
+**Course:** [learn.ztu.edu.ua](https://learn.ztu.edu.ua/course/view.php?id=7082)
 
 ## Development Commands
 
@@ -27,7 +29,3 @@ php -l <filename>.php
 # Install dependencies (if composer.json exists)
 composer install
 ```
-
-## Architecture
-
-This repository is organized for PHP learning exercises. Structure will evolve as labs are added.
