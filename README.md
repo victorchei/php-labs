@@ -22,10 +22,11 @@ git clone https://github.com/victorchei/php-labs.git
 cd php-labs
 ```
 
-Встановіть залежності автоматично:
+Встановіть базове ПЗ (PHP, Git):
 
 ```bash
-./setup/install.sh  # macOS / Linux
+./setup/install-basic.sh   # macOS / Linux
+.\setup\install-basic.ps1  # Windows (PowerShell)
 ```
 
 Запустіть локальний сервер для перегляду завдань у браузері,

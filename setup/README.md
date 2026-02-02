@@ -1,106 +1,102 @@
 # Налаштування середовища розробки
 
-[← Повернутися до основної документації](../README.md) | [CLAUDE.md](../CLAUDE.md)
+[← Повернутися до основної документації](../README.md)
 
 Інструкції для встановлення необхідного програмного забезпечення на різних платформах.
 
+---
+
+## Необхідне ПЗ
+
+### Базове (ЛР 1-5)
+
+- **PHP 8.x** — інтерпретатор PHP
+- **Git** — система контролю версій
+
+### Для Laravel (ЛР 6-7)
+
+- **Composer** — менеджер пакетів PHP
+- **MySQL/MariaDB** — база даних
+
+---
+
 ## Скрипти автоматичної установки
 
-| Скрипт        | Платформа   | Опис                                                                                  |
-| ------------- | ----------- | ------------------------------------------------------------------------------------- |
-| `install.ps1` | Windows     | PowerShell скрипт. Використовує Scoop для встановлення PHP, Composer, MySQL, Git     |
-| `install.sh`  | macOS/Linux | Bash скрипт. Використовує Homebrew (macOS) або apt/dnf (Linux)                        |
+| Скрипт               | Платформа   | Опис                           |
+| -------------------- | ----------- | ------------------------------ |
+| `install-basic.sh`   | macOS/Linux | Базове: PHP, Git               |
+| `install-basic.ps1`  | Windows     | Базове: PHP, Git               |
+| `install-laravel.sh` | macOS/Linux | Laravel: Composer, MySQL       |
+| `install-laravel.ps1`| Windows     | Laravel: Composer, MySQL       |
+| `install.sh`         | macOS/Linux | Повне встановлення (все разом) |
+| `install.ps1`        | Windows     | Повне встановлення (все разом) |
 
 ---
 
 ## Windows
 
-### Важливо про кодування файлу install.ps1
+### Базове встановлення (ЛР 1-5)
 
-> **Увага!** Якщо при запуску install.ps1 з'являється помилка ParserError або текст виглядає "кракозябрами", переконайтесь, що файл збережено у кодуванні **UTF-8 без BOM**. У VS Code це можна зробити так:
->
-> 1. Відкрийте install.ps1 у редакторі.
-> 2. Внизу справа натисніть на кодування (наприклад, "UTF-8" або "Windows1251").
-> 3. Виберіть "Зберегти з кодуванням..." → "UTF-8".
-> 4. Перезапустіть PowerShell і спробуйте ще раз.
+```powershell
+cd setup
+.\install-basic.ps1
+```
 
----
+### Встановлення для Laravel (ЛР 6-7)
 
-### Автоматично (скрипт PowerShell)
+```powershell
+cd setup
+.\install-laravel.ps1
+```
 
-1. Відкрийте PowerShell (не обов'язково від імені адміністратора):
+### Повне встановлення
 
-2. Дозвольте виконання скриптів:
+```powershell
+cd setup
+.\install.ps1
+```
 
-   ```powershell
-   Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
-   ```
+### Примітка про кодування
 
-3. Запустіть скрипт:
+> Якщо при запуску скрипта з'являється помилка або "кракозябри", переконайтесь, що файл збережено у кодуванні **UTF-8 без BOM**.
 
-   > **Важливо:** Перед запуском переконайтесь, що ви знаходитеся у папці `setup`. Якщо ви бачите помилку "не распознано как имя командлета...", це означає, що PowerShell відкрито не в тій папці. Виконайте:
+### Альтернативні варіанти
 
-   ```powershell
-   # Для PowerShell використовуйте подвійні зворотні слеші (\\):
-   cd шлях\\до\\php-labs\\setup
-   .\install.ps1
-   ```
-
-### Варіант 1: WSL (рекомендовано)
-
-1. Відкрийте PowerShell як адміністратор і виконайте:
+#### WSL (рекомендовано)
 
 ```powershell
 wsl --install
 ```
 
-1. Перезавантажте комп'ютер
+Після перезавантаження відкрийте Ubuntu (WSL) та використовуйте bash скрипти.
 
-2. Відкрийте Ubuntu (WSL) та виконайте:
-
-```bash
-# Для Bash використовуйте прямі слеші (/):
-cd /path/to/php-labs/setup
-chmod +x install.sh
-./install.sh
-```
-
-### Варіант 2: Scoop
-
-1. Встановіть [Scoop](https://scoop.sh/) (в PowerShell):
-
-```powershell
-Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
-Invoke-Expression (New-Object System.Net.WebClient).DownloadString('https://get.scoop.sh')
-```
-
-1. Встановіть PHP, Composer та MySQL:
-
-```powershell
-scoop install php composer mysql git
-```
-
-1. Перезапустіть термінал та перевірте:
-
-```powershell
-php -v
-composer -V
-mysql --version
-git --version
-```
-
-### Варіант 3: XAMPP
+#### XAMPP
 
 1. Завантажте [XAMPP](https://www.apachefriends.org/download.html)
 2. Встановіть з компонентами: Apache, MySQL, PHP
 3. Додайте PHP до PATH: `C:\xampp\php`
-4. Встановіть Composer окремо: [getcomposer.org](https://getcomposer.org/download/)
 
 ---
 
 ## macOS
 
-### Автоматично (скрипт)
+### Базове встановлення (ЛР 1-5)
+
+```bash
+cd setup
+chmod +x install-basic.sh
+./install-basic.sh
+```
+
+### Встановлення для Laravel (ЛР 6-7)
+
+```bash
+cd setup
+chmod +x install-laravel.sh
+./install-laravel.sh
+```
+
+### Повне встановлення
 
 ```bash
 cd setup
@@ -110,32 +106,36 @@ chmod +x install.sh
 
 ### Вручну (Homebrew)
 
-1. Встановіть Homebrew (якщо ще не встановлено):
-
 ```bash
-/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-```
+# Базове
+brew install php git
 
-1. Встановіть PHP, Composer та MySQL:
-
-```bash
-brew install php composer mysql
+# Для Laravel
+brew install composer mysql
 brew services start mysql
-```
-
-1. Перевірте:
-
-```bash
-php -v
-composer -V
-mysql --version
 ```
 
 ---
 
 ## Linux
 
-### Автоматично (скрипт)
+### Базове встановлення (ЛР 1-5)
+
+```bash
+cd setup
+chmod +x install-basic.sh
+./install-basic.sh
+```
+
+### Встановлення для Laravel (ЛР 6-7)
+
+```bash
+cd setup
+chmod +x install-laravel.sh
+./install-laravel.sh
+```
+
+### Повне встановлення
 
 ```bash
 cd setup
@@ -143,23 +143,15 @@ chmod +x install.sh
 ./install.sh
 ```
 
-### Ubuntu/Debian
+### Вручну (Ubuntu/Debian)
 
 ```bash
+# Базове
 sudo apt update
-sudo apt install -y php php-cli php-mbstring php-xml php-curl php-mysql php-zip
-sudo apt install -y composer
-sudo apt install -y mariadb-server mariadb-client
-sudo systemctl start mariadb
-sudo systemctl enable mariadb
-```
+sudo apt install -y php php-cli php-mbstring php-xml php-curl git
 
-### Fedora/RHEL
-
-```bash
-sudo dnf install -y php php-cli php-mbstring php-xml php-curl php-mysql php-zip
-sudo dnf install -y composer
-sudo dnf install -y mariadb-server mariadb
+# Для Laravel
+sudo apt install -y composer mariadb-server mariadb-client php-mysql php-zip
 sudo systemctl start mariadb
 sudo systemctl enable mariadb
 ```
@@ -168,38 +160,27 @@ sudo systemctl enable mariadb
 
 ## Перевірка встановлення
 
-Після встановлення виконайте:
+### Базове
 
 ```bash
 php -v          # PHP 8.x
+git --version   # git version 2.x
+```
+
+### Laravel
+
+```bash
 composer -V     # Composer version 2.x
 mysql --version # mysql Ver 8.x або MariaDB
 ```
 
+---
+
 ## Запуск проєкту
 
 ```bash
-# Перейти в папку проєкту
 cd php-labs
-
-# Запустити PHP файл
-php filename.php
-
-# Запустити локальний сервер
 php -S localhost:8000
 ```
 
 Відкрийте в браузері: <http://localhost:8000>
-
----
-
-## Необхідне ПЗ
-
-- PHP 8.x
-- Composer
-- MySQL/MariaDB
-- Git
-
----
-
-❓ Якщо виникають проблеми — дивіться [troubleshooting/](../troubleshooting/) для типових рішень.
