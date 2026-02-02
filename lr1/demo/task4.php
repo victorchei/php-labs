@@ -12,7 +12,7 @@
  * @param int $hour Година (0-23)
  * @return string Пора доби
  */
-function getTimeOfDay(int $hour): string
+function determineTimeOfDay(int $hour): string
 {
     if ($hour >= 6 && $hour <= 11) {
         return "Ранок";
@@ -29,7 +29,7 @@ function getTimeOfDay(int $hour): string
 $hour = 14;
 
 // Визначення пори доби
-$timeOfDay = getTimeOfDay($hour);
+$timeOfDay = determineTimeOfDay($hour);
 
 // Кольори та емодзі для кожної пори
 $styles = [
@@ -76,7 +76,7 @@ $style = $styles[$timeOfDay];
         <div class="emoji"><?= $style['emoji'] ?></div>
         <div class="time"><?= sprintf("%02d:00", $hour) ?></div>
         <div class="result"><?= $timeOfDay ?></div>
-        <p class="info">Функція: getTimeOfDay(<?= $hour ?>) = "<?= $timeOfDay ?>"</p>
+        <p class="info">Функція: determineTimeOfDay(<?= $hour ?>) = "<?= $timeOfDay ?>"</p>
     </div>
 </body>
 </html>

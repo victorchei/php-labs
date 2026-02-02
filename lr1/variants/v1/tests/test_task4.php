@@ -6,7 +6,7 @@
 require_once __DIR__ . '/../tasks/task4.php';
 
 $tests = [
-    'getTimeOfDay' => [
+    'determineTimeOfDay' => [
         // Ранок (6-11)
         [
             'name' => 'Година 6 — Ранок',

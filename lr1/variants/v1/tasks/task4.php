@@ -13,7 +13,7 @@
  * @param int $hour Година (0-23)
  * @return string Пора доби ("Ранок", "День", "Вечір", "Ніч")
  */
-function getTimeOfDay(int $hour): string
+function determineTimeOfDay(int $hour): string
 {
     // TODO: Реалізуйте цю функцію використовуючи if-else
     // Поверніть назву пори доби українською
