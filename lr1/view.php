@@ -14,6 +14,87 @@
  *   ?task=task2      — конкретне завдання
  */
 
+/**
+ * Запускає тести та повертає результати
+ */
+function runTestsAndGetResults(string $variantPath): array
+{
+    $results = [
+        'passed' => 0,
+        'failed' => 0,
+        'total' => 0,
+        'details' => [],
+        'error' => null
+    ];
+
+    $runTestsFile = $variantPath . '/run_tests.php';
+    if (!file_exists($runTestsFile)) {
+        $results['error'] = 'run_tests.php не знайдено';
+        return $results;
+    }
+
+    // Запускаємо тести
+    $cwd = getcwd();
+    chdir($variantPath);
+    $output = shell_exec('php run_tests.php 2>&1');
+    chdir($cwd);
+
+    // Парсимо результати
+    if (preg_match('/Пройдено:\s*(\d+)/u', $output, $m)) {
+        $results['passed'] = (int)$m[1];
+    }
+    if (preg_match('/Провалено:\s*(\d+)/u', $output, $m)) {
+        $results['failed'] = (int)$m[1];
+    }
+    if (preg_match('/Загалом:\s*(\d+)\/(\d+)/u', $output, $m)) {
+        $results['passed'] = (int)$m[1];
+        $results['total'] = (int)$m[2];
+        $results['failed'] = $results['total'] - $results['passed'];
+    }
+
+    // Парсимо деталі по завданнях
+    preg_match_all('/━━━\s*(TASK\d+)\s*━━━/i', $output, $taskMatches);
+    foreach ($taskMatches[1] as $taskName) {
+        $results['details'][strtolower($taskName)] = [
+            'name' => $taskName,
+            'status' => 'unknown'
+        ];
+    }
+
+    // Визначаємо статус кожного завдання
+    $lines = explode("\n", $output);
+    $currentTask = null;
+    $taskPassed = 0;
+    $taskFailed = 0;
+
+    foreach ($lines as $line) {
+        if (preg_match('/━━━\s*(TASK\d+)\s*━━━/i', $line, $m)) {
+            if ($currentTask && isset($results['details'][$currentTask])) {
+                $results['details'][$currentTask]['passed'] = $taskPassed;
+                $results['details'][$currentTask]['failed'] = $taskFailed;
+                $results['details'][$currentTask]['status'] = $taskFailed > 0 ? 'fail' : 'pass';
+            }
+            $currentTask = strtolower($m[1]);
+            $taskPassed = 0;
+            $taskFailed = 0;
+        }
+        if (strpos($line, '✓') !== false) {
+            $taskPassed++;
+        }
+        if (strpos($line, '✗') !== false) {
+            $taskFailed++;
+        }
+    }
+    // Останнє завдання
+    if ($currentTask && isset($results['details'][$currentTask])) {
+        $results['details'][$currentTask]['passed'] = $taskPassed;
+        $results['details'][$currentTask]['failed'] = $taskFailed;
+        $results['details'][$currentTask]['status'] = $taskFailed > 0 ? 'fail' : 'pass';
+    }
+
+    return $results;
+}
+
 // Визначаємо варіант
 $variant = $_GET['variant'] ?? 'menu';
 $task = $_GET['task'] ?? 'menu';
@@ -36,6 +117,12 @@ if ($variant === 'demo' && is_dir(__DIR__ . '/demo/tasks')) {
     $variantPath = __DIR__ . "/variants/$variant";
     $variantName = "Варіант {$m[1]}";
     $variantColor = '#2196F3';
+}
+
+// Запускаємо тести якщо варіант вибрано
+$testResults = null;
+if ($variantPath) {
+    $testResults = runTestsAndGetResults($variantPath);
 }
 
 // Підключаємо файли з функціями якщо варіант вибрано
@@ -63,6 +150,26 @@ for ($i = 1; $i <= 15; $i++) {
         $availableVariants["v$i"] = "Варіант $i";
     }
 }
+
+// Визначаємо колір статусу тестів
+$testStatusColor = '#9E9E9E';
+$testStatusText = '';
+$testStatusIcon = '';
+if ($testResults) {
+    if ($testResults['error']) {
+        $testStatusColor = '#FF9800';
+        $testStatusText = $testResults['error'];
+        $testStatusIcon = '⚠️';
+    } elseif ($testResults['failed'] === 0 && $testResults['passed'] > 0) {
+        $testStatusColor = '#4CAF50';
+        $testStatusText = "Всі тести пройдено";
+        $testStatusIcon = '✅';
+    } elseif ($testResults['failed'] > 0) {
+        $testStatusColor = '#F44336';
+        $testStatusText = "{$testResults['failed']} тестів провалено";
+        $testStatusIcon = '❌';
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="uk">
@@ -79,6 +186,52 @@ for ($i = 1; $i <= 15; $i++) {
             margin: 0 auto;
             background: #f5f5f5;
         }
+        .test-status {
+            background: <?= $testStatusColor ?>;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .test-status-main {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1em;
+            font-weight: 500;
+        }
+        .test-status-details {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9em;
+        }
+        .test-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 4px 10px;
+            border-radius: 4px;
+        }
+        .test-badge.pass { background: rgba(76, 175, 80, 0.3); }
+        .test-badge.fail { background: rgba(244, 67, 54, 0.3); }
+        .task-tests {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+        .task-test-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            background: rgba(255,255,255,0.2);
+        }
+        .task-test-badge.pass { background: #4CAF50; }
+        .task-test-badge.fail { background: #F44336; }
+        .task-test-badge.unknown { background: #9E9E9E; }
         .header {
             background: <?= $variantColor ?>;
             color: white;
@@ -140,6 +293,13 @@ for ($i = 1; $i <= 15; $i++) {
             margin: 15px 0;
             border-radius: 0 8px 8px 0;
         }
+        .success {
+            background: #E8F5E9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+        }
         pre {
             background: #333;
             color: #0f0;
@@ -150,6 +310,38 @@ for ($i = 1; $i <= 15; $i++) {
     </style>
 </head>
 <body>
+    <?php if ($testResults && $variantPath): ?>
+    <div class="test-status">
+        <div class="test-status-main">
+            <span><?= $testStatusIcon ?></span>
+            <span><?= $testStatusText ?></span>
+        </div>
+        <div class="test-status-details">
+            <span class="test-badge pass">✓ <?= $testResults['passed'] ?> пройдено</span>
+            <?php if ($testResults['failed'] > 0): ?>
+            <span class="test-badge fail">✗ <?= $testResults['failed'] ?> провалено</span>
+            <?php endif; ?>
+            <span class="test-badge"><?= $testResults['total'] ?> всього</span>
+        </div>
+        <?php if (!empty($testResults['details'])): ?>
+        <div class="task-tests" style="width: 100%;">
+            <?php foreach ($testResults['details'] as $taskKey => $taskInfo): ?>
+                <span class="task-test-badge <?= $taskInfo['status'] ?>">
+                    <?= strtoupper($taskKey) ?>:
+                    <?php if ($taskInfo['status'] === 'pass'): ?>
+                        ✓ <?= $taskInfo['passed'] ?? 0 ?>
+                    <?php elseif ($taskInfo['status'] === 'fail'): ?>
+                        ✗ <?= $taskInfo['failed'] ?? 0 ?>/<?= ($taskInfo['passed'] ?? 0) + ($taskInfo['failed'] ?? 0) ?>
+                    <?php else: ?>
+                        ?
+                    <?php endif; ?>
+                </span>
+            <?php endforeach; ?>
+        </div>
+        <?php endif; ?>
+    </div>
+    <?php endif; ?>
+
     <div class="header">
         <h1>🧪 Лабораторна робота №1 — <?= htmlspecialchars($variantName) ?></h1>
 
@@ -197,17 +389,35 @@ for ($i = 1; $i <= 15; $i++) {
             <ol>
                 <li>Виберіть свій варіант зі списку вище</li>
                 <li>Перегляньте візуальні завдання (task2, task7)</li>
-                <li>Запустіть тести: <code>php run_tests.php</code></li>
+                <li>Зверху відображається статус тестів</li>
             </ol>
 
         <?php elseif ($task === 'menu'): ?>
             <h2>👋 <?= htmlspecialchars($variantName) ?></h2>
 
             <?php if ($variant === 'demo'): ?>
+                <?php if ($testResults && $testResults['failed'] === 0 && $testResults['passed'] > 0): ?>
+                <div class="success">
+                    <strong>✅ Всі тести пройдено!</strong><br>
+                    Демо-код працює коректно.
+                </div>
+                <?php endif; ?>
             <div class="warning">
                 <strong>📚 Це демонстраційний приклад!</strong><br>
                 Код тут <strong>відрізняється</strong> від вашого варіанту.
             </div>
+            <?php else: ?>
+                <?php if ($testResults && $testResults['failed'] > 0): ?>
+                <div class="warning">
+                    <strong>⚠️ Є тести що не пройшли!</strong><br>
+                    Реалізуйте функції в папці <code>tasks/</code> щоб пройти всі тести.
+                </div>
+                <?php elseif ($testResults && $testResults['passed'] > 0 && $testResults['failed'] === 0): ?>
+                <div class="success">
+                    <strong>✅ Всі тести пройдено!</strong><br>
+                    Вітаємо! Ваша реалізація коректна.
+                </div>
+                <?php endif; ?>
             <?php endif; ?>
 
             <h3>📋 Завдання для перегляду:</h3>
@@ -217,7 +427,7 @@ for ($i = 1; $i <= 15; $i++) {
                 <li><a href="?variant=<?= $variant ?>&task=task7b"><strong>Завдання 7.2</strong></a> — Випадкові фігури</li>
             </ul>
 
-            <h3>🧪 Запуск тестів:</h3>
+            <h3>🧪 Запуск тестів в терміналі:</h3>
             <pre>cd <?= $variant === 'demo' ? 'demo' : "variants/$variant" ?>
 
 php run_tests.php          # Всі тести
