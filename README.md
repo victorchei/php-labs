@@ -62,14 +62,31 @@ git config user.name "Прізвище Ім'я"
 git config user.email "your.email@ztu.edu.ua"
 ```
 
+### Формат коміт-повідомлень
+
+Використовуйте [Conventional Commits](https://www.conventionalcommits.org/):
+
+```text
+<type>: <short description>
+```
+
+| Тип | Опис |
+|-----|------|
+| `feat` | Нова функціональність |
+| `fix` | Виправлення помилки |
+| `docs` | Документація |
+| `style` | Форматування (не впливає на код) |
+| `refactor` | Рефакторинг коду |
+| `test` | Додавання тестів |
+
 ### Приклад історії комітів
 
 ```text
-feat: task7 - генерація таблиці та квадратів
-feat: task6 - операції з тризначним числом
-feat: task5 - класифікація символу (switch)
-feat: task4 - визначення сезону (if-else)
-feat: task3 - конвертер валют
-feat: task2 - виведення форматованого тексту
-docs: task1 - налаштування середовища
+feat: task7 - generate table and random squares
+feat: task6 - three-digit number operations
+feat: task5 - character classification with switch
+feat: task4 - season detection with if-else
+feat: task3 - currency converter
+feat: task2 - formatted text output
+docs: task1 - environment setup
 ```
