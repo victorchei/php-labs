@@ -9,10 +9,37 @@
 - PHP 8.x
 - Composer
 - MySQL/MariaDB
+- Git
+
+---
+
+## Скрипти автоматичної установки
+
+| Скрипт | Платформа | Опис |
+|--------|-----------|------|
+| `install.ps1` | Windows | PowerShell скрипт. Використовує Chocolatey для встановлення PHP, Composer, MySQL, Git |
+| `install.sh` | macOS/Linux | Bash скрипт. Використовує Homebrew (macOS) або apt/dnf (Linux) |
 
 ---
 
 ## Windows
+
+### Автоматично (скрипт PowerShell)
+
+1. Відкрийте PowerShell **від імені адміністратора**
+
+2. Дозвольте виконання скриптів:
+
+   ```powershell
+   Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+   ```
+
+3. Запустіть скрипт:
+
+   ```powershell
+   cd setup
+   .\install.ps1
+   ```
 
 ### Варіант 1: WSL (рекомендовано)
 
