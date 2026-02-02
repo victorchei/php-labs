@@ -11,12 +11,14 @@ v1/
 ├── README.md        ← цей файл
 ├── run_tests.php    ← запуск тестів
 ├── tasks/           ← файли для реалізації (заготовки)
+│   ├── task2.php
 │   ├── task3.php
 │   ├── task4.php
 │   ├── task5.php
 │   ├── task6.php
 │   └── task7.php
 └── tests/           ← тести (не змінювати!)
+    ├── test_task2.php
     ├── test_task3.php
     ├── test_task4.php
     ├── test_task5.php
@@ -47,10 +49,10 @@ php run_tests.php task3 task4 task5
 ### Очікуваний результат
 
 ```
-✓ Пройдено: 25
+✓ Пройдено: 63
 ✗ Провалено: 0
 
-Загалом: 25/25 (100%)
+Загалом: 63/63 (100%)
 ```
 
 ---

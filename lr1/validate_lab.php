@@ -87,17 +87,30 @@ function runTests($dir) {
     $passed = 0;
     $failed = 0;
 
-    if (preg_match('/Passed:\s*(\d+)/', $output, $matches)) {
+    // Match "Пройдено: 47" or "Passed: 47"
+    if (preg_match('/Пройдено:\s*(\d+)/u', $output, $matches)) {
+        $passed = (int)$matches[1];
+    } elseif (preg_match('/Passed:\s*(\d+)/', $output, $matches)) {
         $passed = (int)$matches[1];
     }
-    if (preg_match('/Failed:\s*(\d+)/', $output, $matches)) {
+
+    // Match "Провалено: 0" or "Failed: 0"
+    if (preg_match('/Провалено:\s*(\d+)/u', $output, $matches)) {
+        $failed = (int)$matches[1];
+    } elseif (preg_match('/Failed:\s*(\d+)/', $output, $matches)) {
         $failed = (int)$matches[1];
     }
 
+    // Also try to parse "Загалом: 47/47 (100%)"
+    if ($passed === 0 && preg_match('/Загалом:\s*(\d+)\/(\d+)/u', $output, $matches)) {
+        $passed = (int)$matches[1];
+        $total = (int)$matches[2];
+        $failed = $total - $passed;
+    }
+
     // Check if all tests passed
-    $allPassed = (strpos($output, 'All tests passed') !== false) ||
-                 (strpos($output, 'PASS') !== false && $failed === 0) ||
-                 ($passed > 0 && $failed === 0);
+    $allPassed = ($passed > 0 && $failed === 0) ||
+                 (strpos($output, '100%') !== false && strpos($output, 'Провалено') === false);
 
     return [
         'success' => $allPassed,

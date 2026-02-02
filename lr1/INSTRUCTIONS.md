@@ -21,7 +21,7 @@
    php -S localhost:8000
    ```
 
-   Потім відкрийте `http://localhost:8000/task7_table.php` або `http://localhost:8000/task7_circles.php`
+   Потім відкрийте `http://localhost:8000/task7_table.php` або `http://localhost:8000/task7_squares.php`
 
 ---
 
