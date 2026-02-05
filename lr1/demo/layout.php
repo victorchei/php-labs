@@ -13,8 +13,9 @@
  *   renderDemoLayout($content, $taskName, $bodyClass);
  */
 
-// Use global test helper
+// Use global helpers
 require_once dirname(__DIR__, 2) . '/shared/helpers/test_helper.php';
+require_once dirname(__DIR__, 2) . '/shared/helpers/dev_reload.php';
 
 /**
  * Renders compact header status HTML with details button
@@ -158,6 +159,7 @@ function renderDemoLayout(string $content, string $taskName, string $bodyClass =
         }
     });
     </script>
+    <?= devReloadScript() ?>
 </body>
 </html>
 <?php

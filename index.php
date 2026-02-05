@@ -4,6 +4,10 @@
  * After selecting variant → redirect to variant page
  */
 
+// Dev reload support
+require_once __DIR__ . '/shared/helpers/dev_reload.php';
+handleDevReloadRequest();
+
 $variants = [];
 for ($i = 1; $i <= 15; $i++) {
     $variants["v{$i}"] = "Варіант {$i}";
@@ -136,6 +140,7 @@ if ($selectedVariant && preg_match('/^v\d+$/', $selectedVariant)) {
             <button type="submit" class="btn-go">Перейти</button>
         </form>
     </div>
+    <?= devReloadScript() ?>
 </body>
 
 </html>

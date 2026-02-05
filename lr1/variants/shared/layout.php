@@ -15,8 +15,9 @@
  *   renderLayout($content, $config);
  */
 
-// Use global test helper
+// Use global helpers
 require_once dirname(__DIR__, 3) . '/shared/helpers/test_helper.php';
+require_once dirname(__DIR__, 3) . '/shared/helpers/dev_reload.php';
 
 /**
  * Renders compact header status HTML with details button
@@ -166,6 +167,7 @@ function renderLayout(string $content, array $config): void
         }
     });
     </script>
+    <?= devReloadScript() ?>
 </body>
 </html>
 <?php
