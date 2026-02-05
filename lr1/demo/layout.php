@@ -17,7 +17,7 @@
 require_once dirname(__DIR__, 2) . '/shared/helpers/test_helper.php';
 
 /**
- * Renders compact header status HTML
+ * Renders compact header status HTML with details button
  */
 function renderDemoHeaderStatus(array $results): string
 {
@@ -32,11 +32,52 @@ function renderDemoHeaderStatus(array $results): string
     $score = $results['total'] > 0 ? "{$results['passed']}/{$results['total']}" : '';
     $percent = $results['total'] > 0 ? round(($results['passed'] / $results['total']) * 100) . '%' : '';
 
-    return "<div class='header-status {$config['class']}'>"
+    $html = "<div class='header-status {$config['class']}'>"
         . "<span class='header-status-icon'>{$config['icon']}</span>"
         . "<span>{$config['text']}</span>"
         . ($score ? "<span class='header-status-score'>{$score} {$percent}</span>" : '')
         . "</div>";
+
+    // Add details button if there are tests
+    if ($results['total'] > 0) {
+        $html .= "<button class='header-btn header-btn-details' onclick='toggleTestModal()'>Деталі</button>";
+    }
+
+    return $html;
+}
+
+/**
+ * Renders test details modal HTML
+ */
+function renderDemoTestModal(array $results): string
+{
+    if (empty($results['details'])) {
+        return '';
+    }
+
+    $html = "<div id='test-modal' class='test-modal' onclick='closeModalOnBackdrop(event)'>";
+    $html .= "<div class='test-modal-content'>";
+    $html .= "<div class='test-modal-header'>";
+    $html .= "<h2>Результати тестів ({$results['passed']}/{$results['total']})</h2>";
+    $html .= "<button class='test-modal-close' onclick='toggleTestModal()'>✕</button>";
+    $html .= "</div>";
+    $html .= "<ul class='test-list'>";
+
+    foreach ($results['details'] as $detail) {
+        $class = $detail['passed'] ? 'test-item-passed' : 'test-item-failed';
+        $icon = $detail['passed'] ? '✓' : '✗';
+        $html .= "<li class='{$class}'>";
+        $html .= "<span>{$icon}</span> " . htmlspecialchars($detail['name']);
+        if (!$detail['passed'] && $detail['error']) {
+            $html .= "<br><small class='test-error'>" . htmlspecialchars($detail['error']) . "</small>";
+        }
+        $html .= "</li>";
+    }
+
+    $html .= "</ul>";
+    $html .= "</div></div>";
+
+    return $html;
 }
 
 /**
@@ -93,22 +134,30 @@ function renderDemoLayout(string $content, string $taskName, string $bodyClass =
         <?= $content ?>
     </div>
 
-    <?php if (!empty($testResults['details'])): ?>
-    <details class="test-details" style="max-width:900px;margin:20px auto;">
-        <summary>Деталі тестів (<?= $testResults['passed'] ?>/<?= $testResults['total'] ?>)</summary>
-        <ul class="test-list">
-            <?php foreach ($testResults['details'] as $detail): ?>
-            <li class="<?= $detail['passed'] ? 'test-item-passed' : 'test-item-failed' ?>">
-                <span><?= $detail['passed'] ? '✓' : '✗' ?></span>
-                <?= htmlspecialchars($detail['name']) ?>
-                <?php if (!$detail['passed'] && $detail['error']): ?>
-                <br><small class="test-error"><?= htmlspecialchars($detail['error']) ?></small>
-                <?php endif; ?>
-            </li>
-            <?php endforeach; ?>
-        </ul>
-    </details>
-    <?php endif; ?>
+    <?= renderDemoTestModal($testResults) ?>
+
+    <script>
+    function toggleTestModal() {
+        const modal = document.getElementById('test-modal');
+        if (modal) {
+            modal.classList.toggle('open');
+            document.body.classList.toggle('modal-open');
+        }
+    }
+    function closeModalOnBackdrop(e) {
+        if (e.target.id === 'test-modal') {
+            toggleTestModal();
+        }
+    }
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('test-modal');
+            if (modal && modal.classList.contains('open')) {
+                toggleTestModal();
+            }
+        }
+    });
+    </script>
 </body>
 </html>
 <?php
