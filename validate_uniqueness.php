@@ -48,7 +48,7 @@ $warnings = [];
 foreach ($files as $file) {
     $basename = basename($file, '.md');
     $content = file_get_contents($file);
-    $data = parseVariant($content, $lab);
+    $data = parseVariant($content, $lab, $basename);
     $data['file'] = $basename;
     $variants[$basename] = $data;
 }
@@ -89,13 +89,24 @@ exit(empty($errors) ? 0 : 1);
 
 // ===== Functions =====
 
-function parseVariant(string $content, string $lab): array
+function getVariantGroup(string $basename): string
+{
+    preg_match('/v(\d+)/', $basename, $m);
+    $num = (int)($m[1] ?? 0);
+    if ($num <= 10) return 'A';
+    if ($num <= 20) return 'B';
+    return 'C';
+}
+
+function parseVariant(string $content, string $lab, string $basename): array
 {
     $data = [];
 
     switch ($lab) {
         case 'lr1':
-            $data = parseLR1($content);
+            $group = getVariantGroup($basename);
+            $data = parseLR1($content, $group);
+            $data['group'] = $group;
             break;
         default:
             // Generic: extract all numbers and key text blocks
@@ -106,24 +117,11 @@ function parseVariant(string $content, string $lab): array
     return $data;
 }
 
-function parseLR1(string $content): array
+function parseLR1(string $content, string $group): array
 {
     $data = [];
 
-    // Currency amount: "Сума: 1500 грн"
-    if (preg_match('/Сума:\s*([\d]+)\s*грн/u', $content, $m)) {
-        $data['amount'] = (int)$m[1];
-    }
-
-    // Exchange rate: "Курс: 1 долар = 41.25 грн"
-    if (preg_match('/Курс:\s*1 долар\s*=\s*([\d.]+)\s*грн/u', $content, $m)) {
-        $data['rate'] = (float)$m[1];
-    }
-
-    // Expected conversion result
-    if (preg_match('/обміняти на\s*([\d.]+)\s*долар/u', $content, $m)) {
-        $data['conversion_result'] = (float)$m[1];
-    }
+    // Common fields across all groups
 
     // Month: "Місяць для перевірки: 3"
     if (preg_match('/Місяць для перевірки:\s*(\d+)/u', $content, $m)) {
@@ -155,14 +153,9 @@ function parseLR1(string $content): array
         $data['max_number'] = (int)$m[1];
     }
 
-    // Table dimensions: "Таблиця: 4 x 5"
-    if (preg_match('/Таблиця:\s*(\d+)\s*x\s*(\d+)/u', $content, $m)) {
+    // Table dimensions: "Таблиця: 4 x 5" or "таблиця: 4 x 5"
+    if (preg_match('/[Тт]аблиця:\s*(\d+)\s*x\s*(\d+)/u', $content, $m)) {
         $data['table'] = $m[1] . 'x' . $m[2];
-    }
-
-    // Squares count: "Квадрати: 6"
-    if (preg_match('/Квадрат[иів]*:\s*(\d+)/u', $content, $m)) {
-        $data['squares'] = (int)$m[1];
     }
 
     // Poem (first line after ```)
@@ -170,7 +163,88 @@ function parseLR1(string $content): array
         $data['poem_first_line'] = trim($m[1]);
     }
 
+    // Group-specific parsing
+    switch ($group) {
+        case 'A':
+            parseLR1GroupA($content, $data);
+            break;
+        case 'B':
+            parseLR1GroupB($content, $data);
+            break;
+        case 'C':
+            parseLR1GroupC($content, $data);
+            break;
+    }
+
     return $data;
+}
+
+function parseLR1GroupA(string $content, array &$data): void
+{
+    // Currency: UAH → USD (division)
+    // "Сума: 1500 грн" + "Курс: 1 долар = 41.25 грн"
+    if (preg_match('/Сума:\s*([\d]+)\s*грн/u', $content, $m)) {
+        $data['amount'] = (int)$m[1];
+    }
+    if (preg_match('/Курс:\s*1 долар\s*=\s*([\d.]+)\s*грн/u', $content, $m)) {
+        $data['rate'] = (float)$m[1];
+    }
+    if (preg_match('/обміняти на\s*([\d.]+)\s*долар/u', $content, $m)) {
+        $data['conversion_result'] = (float)$m[1];
+    }
+
+    // Shapes: "Квадрати: 6 червоних квадратів"
+    if (preg_match('/Квадрат[иів]*:\s*(\d+)/u', $content, $m)) {
+        $data['shapes'] = (int)$m[1];
+    }
+}
+
+function parseLR1GroupB(string $content, array &$data): void
+{
+    // Currency: USD → UAH (multiplication)
+    // "Сума: 150 доларів" + "Курс: 1 долар = 39.20 грн"
+    if (preg_match('/Сума:\s*([\d]+)\s*долар/u', $content, $m)) {
+        $data['amount'] = (int)$m[1];
+    }
+    if (preg_match('/Курс:\s*1 долар\s*=\s*([\d.]+)\s*грн/u', $content, $m)) {
+        $data['rate'] = (float)$m[1];
+    }
+    if (preg_match('/обміняти на\s*([\d.]+)\s*грн/u', $content, $m)) {
+        $data['conversion_result'] = (float)$m[1];
+    }
+
+    // Shapes: "Кола: 9 синіх кіл"
+    if (preg_match('/Кола?:\s*(\d+)/u', $content, $m)) {
+        $data['shapes'] = (int)$m[1];
+    }
+}
+
+function parseLR1GroupC(string $content, array &$data): void
+{
+    // Currency: UAH → EUR with commission
+    // "Сума: 12500 грн" + "Курс: 1 євро = 45.30 грн" + "Комісія банку: 2%"
+    if (preg_match('/Сума:\s*([\d]+)\s*грн/u', $content, $m)) {
+        $data['amount'] = (int)$m[1];
+    }
+    if (preg_match('/Курс:\s*1 євро\s*=\s*([\d.]+)\s*грн/u', $content, $m)) {
+        $data['rate'] = (float)$m[1];
+    }
+    if (preg_match('/Комісія банку:\s*([\d.]+)%/u', $content, $m)) {
+        $data['commission'] = (float)$m[1];
+    }
+    // Before commission result
+    if (preg_match('/=\s*([\d.]+)\s*євро,\s*після/u', $content, $m)) {
+        $data['conversion_before'] = (float)$m[1];
+    }
+    // After commission result
+    if (preg_match('/після комісії\s*[\d.]+%\s*—\s*([\d.]+)\s*євро/u', $content, $m)) {
+        $data['conversion_after'] = (float)$m[1];
+    }
+
+    // Shapes: "Трикутники: 7 зелених трикутників"
+    if (preg_match('/Трикутник[иів]*:\s*(\d+)/u', $content, $m)) {
+        $data['shapes'] = (int)$m[1];
+    }
 }
 
 function parseGeneric(string $content): array
@@ -194,7 +268,7 @@ function checkUniqueness(array $variants, array &$errors, array &$warnings, bool
     $fields = [];
     foreach ($variants as $name => $data) {
         foreach ($data as $key => $value) {
-            if ($key === 'file' || $key === 'all_numbers' || $key === 'code_blocks') {
+            if (in_array($key, ['file', 'group', 'all_numbers', 'code_blocks'])) {
                 continue;
             }
             $fields[$key][$name] = $value;
@@ -204,20 +278,6 @@ function checkUniqueness(array $variants, array &$errors, array &$warnings, bool
     echo "\033[1mUniqueness check:\033[0m\n";
 
     foreach ($fields as $field => $values) {
-        // Find duplicates
-        $seen = [];
-        $duplicates = [];
-        foreach ($values as $variant => $value) {
-            $key = is_float($value) ? (string)$value : (string)$value;
-            if (isset($seen[$key])) {
-                $duplicates[$key][] = $variant;
-                if (!isset($duplicates[$key]) || count($duplicates[$key]) === 1) {
-                    $duplicates[$key][] = $seen[$key];
-                }
-            }
-            $seen[$key] = $variant;
-        }
-
         // Rebuild duplicates properly
         $dupsClean = [];
         foreach ($values as $variant => $value) {
@@ -240,12 +300,13 @@ function checkUniqueness(array $variants, array &$errors, array &$warnings, bool
             }
         } else {
             // Fields that are allowed to repeat (derived or limited range)
-            $warnFields = ['month', 'digit_sum', 'reversed', 'max_number', 'squares'];
+            $warnFields = ['month', 'digit_sum', 'reversed', 'max_number', 'shapes', 'commission'];
             if (in_array($field, $warnFields)) {
                 $reason = match ($field) {
                     'month' => 'only 12 months',
                     'digit_sum', 'reversed', 'max_number' => 'derived from number',
-                    'squares' => 'limited range',
+                    'shapes' => 'limited range',
+                    'commission' => 'limited range of reasonable values',
                 };
                 $warnings[] = "{$field}: {$uniqueCount}/{$totalCount} unique ({$reason})";
                 echo "  \033[33m⚠\033[0m {$field}: {$uniqueCount}/{$totalCount} unique (OK — {$reason})\n";
@@ -265,18 +326,51 @@ function verifyMath(array $variants, array &$errors): void
 {
     echo "\033[1mMath verification (LR1):\033[0m\n";
 
+    $errorVariants = 0;
+
     foreach ($variants as $name => $data) {
         $issues = [];
+        $group = $data['group'] ?? 'A';
 
-        // Currency conversion: amount / rate = result (rounded to 2 decimals)
-        if (isset($data['amount'], $data['rate'], $data['conversion_result'])) {
-            $expected = round($data['amount'] / $data['rate'], 2);
-            if (abs($expected - $data['conversion_result']) > 0.01) {
-                $issues[] = "currency: {$data['amount']}/{$data['rate']} = {$expected}, file says {$data['conversion_result']}";
-            }
+        // Currency conversion per group
+        switch ($group) {
+            case 'A':
+                // UAH → USD: amount / rate
+                if (isset($data['amount'], $data['rate'], $data['conversion_result'])) {
+                    $expected = round($data['amount'] / $data['rate'], 2);
+                    if (abs($expected - $data['conversion_result']) > 0.01) {
+                        $issues[] = "currency: {$data['amount']}/{$data['rate']} = {$expected}, file says {$data['conversion_result']}";
+                    }
+                }
+                break;
+
+            case 'B':
+                // USD → UAH: amount * rate
+                if (isset($data['amount'], $data['rate'], $data['conversion_result'])) {
+                    $expected = round($data['amount'] * $data['rate'], 2);
+                    if (abs($expected - $data['conversion_result']) > 0.01) {
+                        $issues[] = "currency: {$data['amount']}*{$data['rate']} = {$expected}, file says {$data['conversion_result']}";
+                    }
+                }
+                break;
+
+            case 'C':
+                // UAH → EUR with commission: (amount / rate) then * (1 - commission/100)
+                if (isset($data['amount'], $data['rate'], $data['commission'])) {
+                    $before = round($data['amount'] / $data['rate'], 2);
+                    $after = round($before * (1 - $data['commission'] / 100), 2);
+
+                    if (isset($data['conversion_before']) && abs($before - $data['conversion_before']) > 0.01) {
+                        $issues[] = "currency_before: {$data['amount']}/{$data['rate']} = {$before}, file says {$data['conversion_before']}";
+                    }
+                    if (isset($data['conversion_after']) && abs($after - $data['conversion_after']) > 0.01) {
+                        $issues[] = "currency_after: {$before}*(1-{$data['commission']}%) = {$after}, file says {$data['conversion_after']}";
+                    }
+                }
+                break;
         }
 
-        // 3-digit number operations
+        // 3-digit number operations (same for all groups)
         if (isset($data['number'])) {
             $num = $data['number'];
             $d1 = intdiv($num, 100);
@@ -305,39 +399,30 @@ function verifyMath(array $variants, array &$errors): void
         }
 
         if (empty($issues)) {
-            if ($name === 'v1' || $name === 'v15' || $name === 'v30') {
-                echo "  \033[32m✓\033[0m {$name}: all math correct\n";
+            // Show sample variants and group headers
+            $showAlways = ['v1', 'v10', 'v11', 'v15', 'v20', 'v21', 'v25', 'v30'];
+            if (in_array($name, $showAlways)) {
+                echo "  \033[32m✓\033[0m {$name} (Group {$group}): all math correct\n";
             }
         } else {
+            $errorVariants++;
             foreach ($issues as $issue) {
                 $errors[] = "{$name}: {$issue}";
-                echo "  \033[31m✗\033[0m {$name}: {$issue}\n";
+                echo "  \033[31m✗\033[0m {$name} (Group {$group}): {$issue}\n";
             }
         }
     }
 
     // Summary line
     $totalVariants = count($variants);
-    $errorVariants = 0;
-    foreach ($variants as $name => $data) {
-        // Re-check quickly
-        if (isset($data['amount'], $data['rate'], $data['conversion_result'])) {
-            $expected = round($data['amount'] / $data['rate'], 2);
-            if (abs($expected - $data['conversion_result']) > 0.01) {
-                $errorVariants++;
-                continue;
-            }
-        }
-        if (isset($data['number'], $data['digit_sum'])) {
-            $num = $data['number'];
-            $expectedSum = intdiv($num, 100) + intdiv($num, 10) % 10 + $num % 10;
-            if ($data['digit_sum'] !== $expectedSum) {
-                $errorVariants++;
-                continue;
-            }
-        }
-    }
     $passedVariants = $totalVariants - $errorVariants;
     echo "  \033[32m✓\033[0m Math: {$passedVariants}/{$totalVariants} variants correct\n";
+
+    // Group summary
+    $groups = ['A' => 0, 'B' => 0, 'C' => 0];
+    foreach ($variants as $data) {
+        $groups[$data['group'] ?? 'A']++;
+    }
+    echo "  Groups: A=" . $groups['A'] . " B=" . $groups['B'] . " C=" . $groups['C'] . "\n";
     echo "\n";
 }
