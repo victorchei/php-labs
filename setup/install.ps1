@@ -44,7 +44,12 @@ if (Test-Command "scoop") {
     Write-Host "[OK] Scoop вже встановлено" -ForegroundColor Green
 } else {
     Write-Host "    Встановлення Scoop..." -ForegroundColor Yellow
-    irm get.scoop.sh | iex
+    try {
+        irm get.scoop.sh | iex
+    } catch {
+        Write-Host "    Перша спроба не вдалась, пробую альтернативний спосіб..." -ForegroundColor Yellow
+        iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
+    }
     Write-Host "[OK] Scoop встановлено!" -ForegroundColor Green
 }
 Write-Host ""

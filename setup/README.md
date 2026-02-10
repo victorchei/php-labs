@@ -32,11 +32,22 @@
 
 > **Важливо:** НЕ запускайте від імені адміністратора! Просто натисніть Enter.
 
-2. Виконайте команди:
+2. Виконайте команди **по одній** (кожну окремо):
 
 ```powershell
 Set-ExecutionPolicy RemoteSigned -Scope CurrentUser -Force
+```
+
+```powershell
 irm get.scoop.sh | iex
+```
+
+> Якщо не працює — спробуйте:
+> ```powershell
+> iex "& {$(irm get.scoop.sh)} -RunAsAdmin"
+> ```
+
+```powershell
 scoop install php git
 ```
 
