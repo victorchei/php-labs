@@ -2,8 +2,8 @@
 /**
  * Завдання 10: Реєстраційна форма
  *
- * Демонстрація: форма з POST, збереження в сесію, автозаповнення,
- * вибір мови через GET + cookie, завантаження фото
+ * Варіант 30: логін "teacher_math", міста з v30.md
+ * POST, сесія, cookie (мова), завантаження фото
  */
 session_start();
 require_once __DIR__ . '/layout.php';
@@ -15,20 +15,19 @@ $languages = [
     'de' => 'Deutsch',
 ];
 
-// GET -> cookie -> default
 if (isset($_GET['lang']) && isset($languages[$_GET['lang']])) {
     $lang = $_GET['lang'];
-    setcookie('lang', $lang, time() + 6 * 30 * 24 * 3600, '/'); // 6 місяців
+    setcookie('lang', $lang, time() + 6 * 30 * 24 * 3600, '/');
 } elseif (isset($_COOKIE['lang']) && isset($languages[$_COOKIE['lang']])) {
     $lang = $_COOKIE['lang'];
 } else {
     $lang = 'uk';
 }
 
-// --- Міста ---
+// --- Міста (варіант 30) ---
 $cities = [
-    'Київ', 'Харків', 'Одеса', 'Дніпро', 'Запоріжжя',
-    'Львів', 'Вінниця', 'Полтава', 'Житомир', 'Черкаси',
+    'Київ', 'Львів', 'Одеса', 'Харків', 'Дніпро',
+    'Запоріжжя', 'Вінниця', 'Полтава', 'Чернігів', 'Тернопіль',
 ];
 
 // --- Хобі ---
@@ -93,7 +92,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // Зберігаємо в сесію (навіть якщо є помилки, для автозаповнення)
+    // Зберігаємо в сесію
     $regData = [
         'login' => $login,
         'gender' => $gender,
@@ -105,7 +104,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $_SESSION['reg_data'] = $regData;
 
     if (empty($errors)) {
-        // Перенаправляємо на сторінку результатів
         header('Location: task10_result.php');
         exit;
     }
@@ -113,7 +111,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 // Для автозаповнення
 $formData = [
-    'login' => $_POST['login'] ?? $sessionData['login'] ?? '',
+    'login' => $_POST['login'] ?? $sessionData['login'] ?? 'teacher_math',
     'gender' => $_POST['gender'] ?? $sessionData['gender'] ?? '',
     'city' => $_POST['city'] ?? $sessionData['city'] ?? '',
     'hobbies' => $_POST['hobbies'] ?? $sessionData['hobbies'] ?? [],
@@ -127,7 +125,6 @@ ob_start();
 
     <!-- Вибір мови -->
     <div class="lang-selector">
-        <span style="font-size: 14px; color: var(--color-text-muted); margin-right: 8px;">Мова:</span>
         <?php foreach ($languages as $code => $name): ?>
         <a href="?lang=<?= $code ?>" class="<?= $lang === $code ? 'active' : '' ?>">
             <?= htmlspecialchars($name) ?>
@@ -137,9 +134,9 @@ ob_start();
     <div class="lang-notice">Вибрана мова: <?= htmlspecialchars($languages[$lang]) ?></div>
 
     <?php if (!empty($errors)): ?>
-    <div class="demo-result demo-result-error" style="margin-bottom: 20px;">
+    <div class="demo-result demo-result-error">
         <h3>Помилки</h3>
-        <ul style="margin: 0; padding-left: 20px; text-align: left;">
+        <ul>
             <?php foreach ($errors as $error): ?>
             <li><?= htmlspecialchars($error) ?></li>
             <?php endforeach; ?>
@@ -147,7 +144,7 @@ ob_start();
     </div>
     <?php endif; ?>
 
-    <form method="post" enctype="multipart/form-data" class="demo-form" style="text-align: left;">
+    <form method="post" enctype="multipart/form-data" class="demo-form">
         <!-- Логін -->
         <div class="form-group">
             <label for="login">Логін</label>
@@ -220,15 +217,13 @@ ob_start();
             <label for="photo">Фотографія</label>
             <input type="file" id="photo" name="photo" accept="image/*">
             <?php if (!empty($sessionData['photo']) && file_exists(__DIR__ . '/' . $sessionData['photo'])): ?>
-            <p style="font-size: 13px; color: var(--color-text-muted); margin-top: 4px;">
-                Поточне фото збережено в сесії
-            </p>
+            <p class="demo-subtitle">Поточне фото збережено в сесії</p>
             <?php endif; ?>
         </div>
 
-        <button type="submit" class="btn-submit" style="align-self: flex-start;">Зареєструватися</button>
+        <button type="submit" class="btn-submit">Зареєструватися</button>
     </form>
 </div>
 <?php
 $content = ob_get_clean();
-renderDemoLayout($content, 'Форма: Реєстрація');
+renderVariantLayout($content, 'Завдання 10');
