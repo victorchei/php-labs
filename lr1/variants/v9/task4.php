@@ -2,7 +2,7 @@
 /**
  * Завдання 3: Визначення сезону та днів у місяці (if-else)
  *
- * Місяць 9 → "осінь", 30 днів
+ * Місяць 6 → "літо", 30 днів
  */
 require_once __DIR__ . '/layout.php';
 
@@ -19,13 +19,13 @@ function determineSeason(int $month): string
     }
 }
 
-function daysInMonth(int $month, int $year = 2025): int
+function daysInMonth(int $month, int $year = 2026): int
 {
     return cal_days_in_month(CAL_GREGORIAN, $month, $year);
 }
 
-// Вхідні дані (варіант 30)
-$month = 9;
+// Вхідні дані
+$month = 6;
 
 $season = determineSeason($month);
 $days = daysInMonth($month);
