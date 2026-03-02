@@ -2,18 +2,14 @@
 /**
  * Завдання 7: Генератор імен тварин
  *
- * Демонстрація: функція приймає масив складів і генерує ім'я
+ * Варіант 30: склади "ту ге ла мі ро ка ші ну бе зо", 4 імені, 2 складів
  */
 require_once __DIR__ . '/layout.php';
 
 /**
  * Генерує ім'я тварини з масиву складів
- *
- * @param array $syllables Масив складів
- * @param int $count Кількість складів в імені (2-4)
- * @return string Згенероване ім'я
  */
-function generateAnimalName(array $syllables, int $count = 3): string
+function generateAnimalName(array $syllables, int $count = 2): string
 {
     if (empty($syllables)) {
         return '';
@@ -35,7 +31,7 @@ function generateAnimalName(array $syllables, int $count = 3): string
 /**
  * Генерує кілька імен
  */
-function generateMultipleNames(array $syllables, int $namesCount = 5, int $syllablesPerName = 3): array
+function generateMultipleNames(array $syllables, int $namesCount = 4, int $syllablesPerName = 2): array
 {
     $names = [];
     for ($i = 0; $i < $namesCount; $i++) {
@@ -44,10 +40,10 @@ function generateMultipleNames(array $syllables, int $namesCount = 5, int $sylla
     return $names;
 }
 
-// Обробка форми
-$syllablesInput = $_POST['syllables'] ?? 'ба ку ри мі ло та ні ша зо пу';
-$count = (int)($_POST['count'] ?? 5);
-$syllablesPerName = (int)($_POST['syllables_per_name'] ?? 3);
+// Обробка форми (варіант 30)
+$syllablesInput = $_POST['syllables'] ?? 'ту ге ла мі ро ка ші ну бе зо';
+$count = (int)($_POST['count'] ?? 4);
+$syllablesPerName = (int)($_POST['syllables_per_name'] ?? 2);
 $submitted = isset($_POST['syllables']);
 
 if ($count < 1) $count = 1;
@@ -66,12 +62,12 @@ ob_start();
 ?>
 <div class="demo-card">
     <h2>Генератор імен тварин</h2>
-    <p style="color: var(--color-text-muted); margin-top: 0;">Створює унікальні імена з набору складів</p>
+    <p class="demo-subtitle">Створює унікальні імена з набору складів</p>
 
     <form method="post" class="demo-form">
         <div>
             <label for="syllables">Склади (через пробіл)</label>
-            <input type="text" id="syllables" name="syllables" value="<?= htmlspecialchars($syllablesInput) ?>" placeholder="ба ку рі мі ло">
+            <input type="text" id="syllables" name="syllables" value="<?= htmlspecialchars($syllablesInput) ?>" placeholder="ту ге ла мі ро">
         </div>
         <div class="form-row">
             <div>
@@ -99,10 +95,10 @@ ob_start();
     <div class="array-arrow">&#8595;</div>
 
     <div>
-        <h3 style="margin: 0 0 12px; font-size: 16px; color: var(--color-success-text);">Згенеровані імена</h3>
+        <h3 class="demo-section-title-success">Згенеровані імена</h3>
         <div class="array-display">
             <?php foreach ($names as $name): ?>
-            <span class="array-item array-item-unique" style="font-size: 17px;"><?= htmlspecialchars($name) ?></span>
+            <span class="array-item array-item-unique"><?= htmlspecialchars($name) ?></span>
             <?php endforeach; ?>
         </div>
     </div>
@@ -114,4 +110,4 @@ generateAnimalName($syllables, <?= $syllablesPerName ?>)
 </div>
 <?php
 $content = ob_get_clean();
-renderDemoLayout($content, 'Масиви: Імена тварин');
+renderVariantLayout($content, 'Завдання 7');
