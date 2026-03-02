@@ -1,19 +1,24 @@
 <?php
 /**
- * Завдання 4: Латинська літера — голосна чи приголосна (switch)
+ * Завдання 4: Голосний чи приголосний (switch)
  *
- * Символ 'm' → "приголосна"
+ * Символ 'р' → "приголосна"
  */
 require_once __DIR__ . '/layout.php';
 
 function isVowelOrConsonant(string $letter): string
 {
     switch (strtolower($letter)) {
-        case 'a':
-        case 'e':
-        case 'i':
-        case 'o':
-        case 'u':
+        case 'а':
+        case 'е':
+        case 'є':
+        case 'и':
+        case 'і':
+        case 'ї':
+        case 'о':
+        case 'у':
+        case 'ю':
+        case 'я':
             return "голосна";
         default:
             return "приголосна";
@@ -21,7 +26,7 @@ function isVowelOrConsonant(string $letter): string
 }
 
 // Вхідні дані (варіант 30)
-$letter = 'm';
+$letter = 'р';
 
 $result = isVowelOrConsonant($letter);
 $isVowel = $result === "голосна";
