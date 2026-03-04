@@ -4,40 +4,31 @@
  */
 require_once __DIR__ . '/layout.php';
 
-function generateGrowingTriangles(int $n): string
+function generateChessboard(int $rows, int $cols): string
 {
-    $html = "<div class='shapes-container shapes-container--gray'>";
+    $cellSize = 40; // px
+    $html = "<div class='shapes-container shapes-container--gray' style='display:inline-block;padding:16px;background:#f3f4f6;'>";
+    $html .= "<div style='display:grid;grid-template-columns:repeat({$cols},{$cellSize}px);grid-auto-rows:{$cellSize}px;gap:0;'>";
 
-    for ($i = 0; $i < $n; $i++) {
-        $size = 20 + $i * 5;
-        $top = mt_rand(5, 85);
-        $left = mt_rand(5, 85);
-        $opacity = mt_rand(70, 100) / 100;
-
-        $halfSize = (int)($size / 2);
-        $html .= "<div style='
-            position:absolute;
-            top:{$top}%;
-            left:{$left}%;
-            width:0;
-            height:0;
-            border-left:{$halfSize}px solid transparent;
-            border-right:{$halfSize}px solid transparent;
-            border-bottom:{$size}px solid #10b981;
-            opacity:{$opacity};
-        '></div>";
+    for ($r = 0; $r < $rows; $r++) {
+        for ($c = 0; $c < $cols; $c++) {
+            $isBlack = (($r + $c) % 2) === 0;
+            $color = $isBlack ? '#111827' : '#ffffff';
+            $html .= "<div style='width:{$cellSize}px;height:{$cellSize}px;background:{$color};'></div>";
+        }
     }
 
-    $html .= "</div>";
+    $html .= "</div></div>";
     return $html;
 }
 
-$n = 20;
-$triangles = generateGrowingTriangles($n);
+$rows = 5;
+$cols = 10;
+$board = generateChessboard($rows, $cols);
 
-$content = $triangles . '
-    <div class="circles-func">generateGrowingTriangles(' . $n . ')</div>
-    <div class="circles-counter">🔺 Трикутників: ' . $n . '</div>
-    <p class="circles-info">Оновіть сторінку для нової композиції 🔄</p>';
+$content = $board . '
+    <div class="circles-func">generateChessboard(' . $rows . ', ' . $cols . ')</div>
+    <div class="circles-counter">♟ Клітин: ' . $rows . ' x ' . $cols . ' = ' . ($rows * $cols) . '</div>
+    <p class="circles-info">Оновіть сторінку для повторної генерації (розташування статичне)</p>';
 
-renderVariantLayout($content, 'Завдання 6.2', 'task7-circles-body');
+renderVariantLayout($content, 'Шахова таблиця 5x10', 'task7-squares-body');
