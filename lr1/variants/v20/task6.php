@@ -2,7 +2,7 @@
 /**
  * Завдання 5: Тризначне число
  *
- * Число 581: сума цифр=14, зворотне=185, паліндром=ні
+ * Число 573: сума цифр=15, зворотне=375, паліндром=ні
  */
 require_once __DIR__ . '/layout.php';
 
@@ -27,8 +27,8 @@ function isPalindrome(int $number): bool
     return $number === reverseNumber($number);
 }
 
-// Вхідні дані (варіант 30)
-$number = 581;
+// Вхідні дані (варіант 20)
+$number = 573;
 
 $d1 = (int)($number / 100);
 $d2 = (int)(($number % 100) / 10);
