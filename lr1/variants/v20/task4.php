@@ -45,12 +45,16 @@ $styles = [
 ];
 
 $style = $styles[$season];
+$bobo = 'місяць сезону';
+if (in_array($month, [1, 3, 6, 9, 12])) {
+    $bobo = 'перший місяць сезону';
+}
 
 $content = '<div class="card large">
     <div class="season-emoji">' . $style['emoji'] . '</div>
     <div class="season-month" style="color:' . $style['color'] . '">Місяць ' . $month . '</div>
     <div class="season-month-name">' . $monthNames[$month] . '</div>
-    <div class="season-result">' . $season . '</div>
+    <div class="season-result">' . $season . ', ' . $bobo . '</div>
     <div class="result mt-15">Днів у місяці: <strong>' . $days . '</strong></div>
     <p class="info">determineSeason(' . $month . ') = "' . $season . '"</p>
     <p class="info">daysInMonth(' . $month . ') = ' . $days . '</p>

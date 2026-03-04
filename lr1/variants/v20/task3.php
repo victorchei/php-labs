@@ -1,8 +1,8 @@
 <?php
 /**
- * Завдання 2: Конвертер валют (UAH → EUR)
+ * Завдання 2: Конвертер валют (UAH → USD)
  *
- * 48600 грн → долларів, курс 47.50, комісія 3%
+ * 48600 грн → долларів, курс 40.00, комісія 3%
  */
 require_once __DIR__ . '/layout.php';
 
@@ -16,7 +16,7 @@ function applyCommission(float $amount, float $commissionPercent): float
     return round($amount * (1 - $commissionPercent / 100), 2);
 }
 
-// Вхідні дані (варіант 30)
+
 $uah = 45000;
 $rate = 40.00;
 $commission = 3;
