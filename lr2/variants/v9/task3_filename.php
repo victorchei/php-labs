@@ -2,7 +2,7 @@
 /**
  * Завдання 3: Ім'я файлу
  *
- * Варіант 30: "/var/audio/podcasts/episode_42.mp3"
+ * Варіант 9: "C:\Music\Playlists\ambient_track.mp3"
  */
 require_once __DIR__ . '/layout.php';
 
@@ -28,12 +28,18 @@ function extractExtension(string $path): string
 
 function extractDirectory(string $path): string
 {
+    // Перевіряємо, чи це Windows-шлях (чи є там бекслеші)
+    $isWindows = strpos($path, '\\') !== false;
+    // Нормалізуємо для коректної роботи dirname() на будь-якому сервері
     $normalized = str_replace('\\', '/', $path);
-    return dirname($normalized);
+    $dir = dirname($normalized);
+    // Якщо шлях був віндовсовський, повертаємо правильні слеші назад
+    return $isWindows ? str_replace('/', '\\', $dir) : $dir;
 }
 
-// Вхідні дані (варіант 30)
-$path = $_POST['path'] ?? '/var/audio/podcasts/episode_42.mp3';
+// Вхідні дані (варіант 9)
+// Використовуємо подвійні бекслеші, бо в PHP один бекслеш екранує наступний символ
+$path = $_POST['path'] ?? 'C:\\Music\\Playlists\\ambient_track.mp3';
 $submitted = isset($_POST['path']);
 
 $filename = extractFilename($path);
@@ -42,48 +48,48 @@ $directory = extractDirectory($path);
 
 ob_start();
 ?>
-<div class="demo-card">
-    <h2>Виділення імені файлу</h2>
-    <p class="demo-subtitle">Отримання імені файлу без розширення з повного шляху</p>
+    <div class="demo-card">
+        <h2>Виділення імені файлу</h2>
+        <p class="demo-subtitle">Отримання інформації з повного шляху</p>
 
-    <form method="post" class="demo-form">
-        <div>
-            <label for="path">Повний шлях до файлу</label>
-            <input type="text" id="path" name="path" value="<?= htmlspecialchars($path) ?>" placeholder="/var/audio/file.mp3">
+        <form method="post" class="demo-form">
+            <div>
+                <label for="path">Повний шлях до файлу</label>
+                <input type="text" id="path" name="path" value="<?= htmlspecialchars($path) ?>" placeholder="C:\Folder\file.ext">
+            </div>
+            <button type="submit" class="btn-submit">Виділити</button>
+        </form>
+
+        <div class="demo-result">
+            <h3>Ім'я файлу (без розширення)</h3>
+            <div class="demo-result-value"><?= htmlspecialchars($filename) ?></div>
         </div>
-        <button type="submit" class="btn-submit">Виділити</button>
-    </form>
 
-    <div class="demo-result">
-        <h3>Ім'я файлу (без розширення)</h3>
-        <div class="demo-result-value"><?= htmlspecialchars($filename) ?></div>
+        <div class="demo-section">
+            <h3>Деталі розбору</h3>
+            <table class="demo-table">
+                <tr>
+                    <td class="demo-table-label">Повний шлях</td>
+                    <td><code><?= htmlspecialchars($path) ?></code></td>
+                </tr>
+                <tr>
+                    <td class="demo-table-label">Директорія</td>
+                    <td><code><?= htmlspecialchars($directory) ?></code></td>
+                </tr>
+                <tr>
+                    <td class="demo-table-label">Ім'я файлу</td>
+                    <td><span class="demo-tag demo-tag-success"><?= htmlspecialchars($filename) ?></span></td>
+                </tr>
+                <tr>
+                    <td class="demo-table-label">Розширення</td>
+                    <td><span class="demo-tag demo-tag-primary"><?= htmlspecialchars($extension) ?></span></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="demo-code">extractFilename("<?= htmlspecialchars($path) ?>")
+            // Результат: "<?= htmlspecialchars($filename) ?>"</div>
     </div>
-
-    <div class="demo-section">
-        <h3>Деталі розбору</h3>
-        <table class="demo-table">
-            <tr>
-                <td class="demo-table-label">Повний шлях</td>
-                <td><code><?= htmlspecialchars($path) ?></code></td>
-            </tr>
-            <tr>
-                <td class="demo-table-label">Директорія</td>
-                <td><code><?= htmlspecialchars($directory) ?></code></td>
-            </tr>
-            <tr>
-                <td class="demo-table-label">Ім'я файлу</td>
-                <td><span class="demo-tag demo-tag-success"><?= htmlspecialchars($filename) ?></span></td>
-            </tr>
-            <tr>
-                <td class="demo-table-label">Розширення</td>
-                <td><span class="demo-tag demo-tag-primary"><?= htmlspecialchars($extension) ?></span></td>
-            </tr>
-        </table>
-    </div>
-
-    <div class="demo-code">extractFilename("<?= htmlspecialchars($path) ?>")
-// Результат: "<?= htmlspecialchars($filename) ?>"</div>
-</div>
 <?php
 $content = ob_get_clean();
 renderVariantLayout($content, 'Завдання 3');

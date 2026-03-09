@@ -2,12 +2,12 @@
 /**
  * Завдання 5: Генератор паролів (без підрядка логіну)
  *
- * Варіант 30 (група C, Sub3): пароль без підрядка логіну (>= 3 символи)
- * Довжина: 16
+ * Варіант 9: пароль без підрядка логіну (>= 3 символи)
+ * Довжина: 18
  */
 require_once __DIR__ . '/layout.php';
 
-function generatePassword(int $length = 16): string
+function generatePassword(int $length = 18): string
 {
     $upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
     $lower = 'abcdefghijklmnopqrstuvwxyz';
@@ -16,15 +16,18 @@ function generatePassword(int $length = 16): string
     $all = $upper . $lower . $digits . $special;
 
     $password = '';
+    // Гарантуємо наявність хоча б одного символу з кожної категорії
     $password .= $upper[random_int(0, strlen($upper) - 1)];
     $password .= $lower[random_int(0, strlen($lower) - 1)];
     $password .= $digits[random_int(0, strlen($digits) - 1)];
     $password .= $special[random_int(0, strlen($special) - 1)];
 
+    // Добираємо решту символів до потрібної довжини
     for ($i = 4; $i < $length; $i++) {
         $password .= $all[random_int(0, strlen($all) - 1)];
     }
 
+    // Перемішуємо символи, щоб обов'язкові не стояли завжди на початку
     return str_shuffle($password);
 }
 
@@ -39,7 +42,7 @@ function generatePasswordWithoutLogin(int $length, string $login, int $maxAttemp
             return $password;
         }
     }
-    return $password; // fallback
+    return $password; // fallback, якщо за 100 спроб не вийшло (майже нереально)
 }
 
 /**
@@ -65,13 +68,14 @@ function containsLoginSubstring(string $password, string $login, int $minLength 
 function checkPasswordStrength(string $password): array
 {
     $checks = [
-        'length' => ['label' => 'Довжина >= 8 символів', 'passed' => (function_exists('mb_strlen') ? mb_strlen($password) : strlen($password)) >= 8],
-        'upper' => ['label' => 'Містить велику літеру', 'passed' => (bool)preg_match('/[A-Z]/', $password)],
-        'lower' => ['label' => 'Містить малу літеру', 'passed' => (bool)preg_match('/[a-z]/', $password)],
-        'digit' => ['label' => 'Містить цифру', 'passed' => (bool)preg_match('/[0-9]/', $password)],
-        'special' => ['label' => 'Містить спецсимвол', 'passed' => (bool)preg_match('/[^a-zA-Z0-9]/', $password)],
+            'length' => ['label' => 'Довжина >= 8 символів', 'passed' => (function_exists('mb_strlen') ? mb_strlen($password) : strlen($password)) >= 8],
+            'upper' => ['label' => 'Містить велику літеру', 'passed' => (bool)preg_match('/[A-Z]/', $password)],
+            'lower' => ['label' => 'Містить малу літеру', 'passed' => (bool)preg_match('/[a-z]/', $password)],
+            'digit' => ['label' => 'Містить цифру', 'passed' => (bool)preg_match('/[0-9]/', $password)],
+            'special' => ['label' => 'Містить спецсимвол', 'passed' => (bool)preg_match('/[^a-zA-Z0-9]/', $password)],
     ];
 
+    // Рахуємо бали (0-5)
     $score = array_reduce($checks, fn(int $acc, array $check) => $acc + ($check['passed'] ? 1 : 0), 0);
 
     $strength = match (true) {
@@ -82,25 +86,25 @@ function checkPasswordStrength(string $password): array
     };
 
     $strengthLabels = [
-        'weak' => 'Слабкий',
-        'fair' => 'Задовільний',
-        'good' => 'Добрий',
-        'strong' => 'Надійний',
+            'weak' => 'Слабкий',
+            'fair' => 'Задовільний',
+            'good' => 'Добрий',
+            'strong' => 'Надійний',
     ];
 
     return [
-        'strength' => $strength,
-        'strengthLabel' => $strengthLabels[$strength],
-        'score' => $score,
-        'total' => count($checks),
-        'checks' => $checks,
+            'strength' => $strength,
+            'strengthLabel' => $strengthLabels[$strength],
+            'score' => $score,
+            'total' => count($checks),
+            'checks' => $checks,
     ];
 }
 
-// Обробка (варіант 30)
+// Обробка (варіант 9)
 $action = $_POST['action'] ?? '';
-$genLength = (int)($_POST['gen_length'] ?? 16);
-$login = $_POST['login'] ?? 'teacher_math';
+$genLength = (int)($_POST['gen_length'] ?? 18);
+$login = $_POST['login'] ?? 'oleksiy_tkachuk';
 $checkPassword = $_POST['check_password'] ?? '';
 $generated = '';
 $strengthResult = null;
@@ -120,102 +124,100 @@ if ($action === 'generate') {
 
 ob_start();
 ?>
-<div class="demo-card demo-card-wide">
-    <h2>Генератор паролів (без логіну)</h2>
-    <p class="demo-subtitle">Пароль не повинен містити підрядок логіну (>= 3 символи)</p>
+    <div class="demo-card demo-card-wide">
+        <h2>Генератор паролів (без логіну)</h2>
+        <p class="demo-subtitle">Пароль не повинен містити підрядок логіну (>= 3 символи)</p>
 
-    <div class="demo-grid-2">
-        <!-- Генератор -->
-        <div class="demo-panel">
-            <h3 class="demo-panel-title-primary">Генератор</h3>
-            <form method="post" class="demo-form">
-                <input type="hidden" name="action" value="generate">
-                <div>
-                    <label for="login">Логін</label>
-                    <input type="text" id="login" name="login" value="<?= htmlspecialchars($login) ?>" placeholder="Ваш логін">
-                </div>
-                <div>
-                    <label for="gen_length">Довжина пароля</label>
-                    <input type="number" id="gen_length" name="gen_length" value="<?= $genLength ?>" min="4" max="128">
-                </div>
-                <button type="submit" class="btn-submit">Згенерувати</button>
-            </form>
+        <div class="demo-grid-2">
+            <div class="demo-panel">
+                <h3 class="demo-panel-title-primary">Генератор</h3>
+                <form method="post" class="demo-form">
+                    <input type="hidden" name="action" value="generate">
+                    <div>
+                        <label for="login">Логін</label>
+                        <input type="text" id="login" name="login" value="<?= htmlspecialchars($login) ?>" placeholder="Ваш логін">
+                    </div>
+                    <div>
+                        <label for="gen_length">Довжина пароля</label>
+                        <input type="number" id="gen_length" name="gen_length" value="<?= $genLength ?>" min="4" max="128">
+                    </div>
+                    <button type="submit" class="btn-submit">Згенерувати</button>
+                </form>
 
-            <?php if ($generated): ?>
-            <div class="demo-result mt-15">
-                <h3>Згенерований пароль</h3>
-                <div class="demo-result-value demo-mono"><?= htmlspecialchars($generated) ?></div>
+                <?php if ($generated): ?>
+                    <div class="demo-result mt-15">
+                        <h3>Згенерований пароль</h3>
+                        <div class="demo-result-value demo-mono"><?= htmlspecialchars($generated) ?></div>
+                    </div>
+                <?php endif; ?>
             </div>
-            <?php endif; ?>
+
+            <div class="demo-panel">
+                <h3 class="demo-panel-title-success">Перевірка міцності</h3>
+                <form method="post" class="demo-form">
+                    <input type="hidden" name="action" value="check">
+                    <input type="hidden" name="login" value="<?= htmlspecialchars($login) ?>">
+                    <div>
+                        <label for="check_password">Пароль для перевірки</label>
+                        <input type="text" id="check_password" name="check_password" value="<?= htmlspecialchars($checkPassword) ?>" placeholder="Введіть пароль">
+                    </div>
+                    <button type="submit" class="btn-submit btn-success">Перевірити</button>
+                </form>
+            </div>
         </div>
 
-        <!-- Перевірка -->
-        <div class="demo-panel">
-            <h3 class="demo-panel-title-success">Перевірка міцності</h3>
-            <form method="post" class="demo-form">
-                <input type="hidden" name="action" value="check">
-                <input type="hidden" name="login" value="<?= htmlspecialchars($login) ?>">
-                <div>
-                    <label for="check_password">Пароль для перевірки</label>
-                    <input type="text" id="check_password" name="check_password" value="<?= htmlspecialchars($checkPassword) ?>" placeholder="Введіть пароль">
-                </div>
-                <button type="submit" class="btn-submit btn-success">Перевірити</button>
-            </form>
-        </div>
-    </div>
+        <?php if ($strengthResult): ?>
+            <div class="demo-section">
+                <h3>Результат перевірки: <span class="demo-tag demo-tag-<?= match($strengthResult['strength']) {
+                        'weak' => 'error',
+                        'fair' => 'warning',
+                        'good' => 'primary',
+                        'strong' => 'success',
+                    } ?>"><?= htmlspecialchars($strengthResult['strengthLabel']) ?></span></h3>
 
-    <?php if ($strengthResult): ?>
-    <div class="demo-section">
-        <h3>Результат перевірки: <span class="demo-tag demo-tag-<?= match($strengthResult['strength']) {
-            'weak' => 'error',
-            'fair' => 'warning',
-            'good' => 'primary',
-            'strong' => 'success',
-        } ?>"><?= htmlspecialchars($strengthResult['strengthLabel']) ?></span></h3>
-
-        <?php if ($loginCheck !== null): ?>
-        <p>Містить підрядок логіну "<?= htmlspecialchars($login) ?>":
-            <?php if ($loginCheck): ?>
-            <span class="demo-tag demo-tag-error">Так (небезпечно!)</span>
-            <?php else: ?>
-            <span class="demo-tag demo-tag-success">Ні</span>
-            <?php endif; ?>
-        </p>
-        <?php endif; ?>
-
-        <div class="strength-meter">
-            <div class="strength-meter-fill strength-<?= $strengthResult['strength'] ?>"></div>
-        </div>
-
-        <table class="demo-table mt-15">
-            <thead>
-                <tr>
-                    <th>Критерій</th>
-                    <th>Статус</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($strengthResult['checks'] as $check): ?>
-                <tr>
-                    <td><?= htmlspecialchars($check['label']) ?></td>
-                    <td>
-                        <?php if ($check['passed']): ?>
-                        <span class="demo-tag demo-tag-success">Так</span>
+                <?php if ($loginCheck !== null): ?>
+                    <p>Містить підрядок логіну "<?= htmlspecialchars($login) ?>":
+                        <?php if ($loginCheck): ?>
+                            <span class="demo-tag demo-tag-error">Так (небезпечно!)</span>
                         <?php else: ?>
-                        <span class="demo-tag demo-tag-error">Ні</span>
+                            <span class="demo-tag demo-tag-success">Ні</span>
                         <?php endif; ?>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+                    </p>
+                <?php endif; ?>
 
-        <div class="demo-code">generatePasswordWithoutLogin(<?= $genLength ?>, "<?= htmlspecialchars($login) ?>")
-// containsLoginSubstring(password, login, minLength: 3)
-// score: <?= $strengthResult['score'] ?>/<?= $strengthResult['total'] ?>, strength: "<?= $strengthResult['strength'] ?>"</div>
+                <div class="strength-meter">
+                    <div class="strength-meter-fill strength-<?= $strengthResult['strength'] ?>"></div>
+                </div>
+
+                <table class="demo-table mt-15">
+                    <thead>
+                    <tr>
+                        <th>Критерій</th>
+                        <th>Статус</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <?php foreach ($strengthResult['checks'] as $check): ?>
+                        <tr>
+                            <td><?= htmlspecialchars($check['label']) ?></td>
+                            <td>
+                                <?php if ($check['passed']): ?>
+                                    <span class="demo-tag demo-tag-success">Так</span>
+                                <?php else: ?>
+                                    <span class="demo-tag demo-tag-error">Ні</span>
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                    </tbody>
+                </table>
+
+                <div class="demo-code">generatePasswordWithoutLogin(<?= $genLength ?>, "<?= htmlspecialchars($login) ?>")
+                    // containsLoginSubstring(password, login, minLength: 3)
+                    // score: <?= $strengthResult['score'] ?>/<?= $strengthResult['total'] ?>, strength: "<?= $strengthResult['strength'] ?>"</div>
+            </div>
+        <?php endif; ?>
     </div>
-    <?php endif; ?>
-</div>
 <?php
 $content = ob_get_clean();
 renderVariantLayout($content, 'Завдання 5');
