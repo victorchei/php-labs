@@ -32,7 +32,7 @@ cd php-labs
 5. **Додайте upstream** (для синхронізації):
 
 ```bash
-git remote add upstream https://github.com/victorchei/php-labs.git
+git re ://github.com/victorchei/php-labs.git
 ```
 
 6. **Запустіть сервер:**
