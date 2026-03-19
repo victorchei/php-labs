@@ -41,7 +41,7 @@ class CatalogController extends PageController
                     ':description' => trim($old['description'] ?? ''),
                 ]);
 
-                $_SESSION['flash_success'] = 'Товар "' . htmlspecialchars(trim($old['name'])) . '" додано!';
+                $_SESSION['flash_success'] = 'Товар "' . trim($old['name']) . '" додано!';
                 $this->redirect('catalog/list');
                 return;
             }

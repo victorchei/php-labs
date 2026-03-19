@@ -2,11 +2,16 @@
 $colors = $colors ?? [];
 $currentColor = $currentColor ?? '#f9fafb';
 $message = $message ?? '';
+$error = $error ?? '';
 ?>
 
 <h1>Колір фону (Сесії)</h1>
 
 <p>Оберіть колір фону сторінки. Значення зберігається в <code>$_SESSION</code> та діє на всіх сторінках до закриття браузера.</p>
+
+<?php if ($error !== ''): ?>
+    <div class="alert alert--error"><?= htmlspecialchars($error) ?></div>
+<?php endif; ?>
 
 <?php if ($message !== ''): ?>
     <div class="alert alert--success"><?= htmlspecialchars($message) ?></div>

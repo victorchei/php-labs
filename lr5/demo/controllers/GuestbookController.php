@@ -27,6 +27,8 @@ class GuestbookController extends PageController
             }
 
             if (empty($errors)) {
+                $name = str_replace(["\r", "\n"], ' ', $name);
+                $comment = str_replace(["\r", "\n"], ' ', $comment);
                 $date = date('Y-m-d H:i');
                 $line = $date . '|' . str_replace('|', ' ', $name) . '|' . str_replace('|', ' ', $comment) . PHP_EOL;
                 file_put_contents($this->filePath, $line, FILE_APPEND | LOCK_EX);

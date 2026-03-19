@@ -43,7 +43,7 @@ class RecipeController extends PageController
                     ':instructions' => trim($old['instructions'] ?? ''),
                 ]);
 
-                $_SESSION['flash_success'] = 'Рецепт "' . htmlspecialchars(trim($old['title'])) . '" додано!';
+                $_SESSION['flash_success'] = 'Рецепт "' . trim($old['title']) . '" додано!';
                 $this->redirect('recipe/list');
                 return;
             }

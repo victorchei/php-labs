@@ -16,6 +16,7 @@ class SettingsController extends PageController
     public function action_color(): void
     {
         $message = '';
+        $error = '';
 
         if ($this->request->isPost()) {
             $color = $this->request->post('bg_color', '#f9fafb');
@@ -24,7 +25,7 @@ class SettingsController extends PageController
                 $_SESSION['bg_color'] = $color;
                 $message = 'Колір фону збережено!';
             } else {
-                $message = 'Невідомий колір.';
+                $error = 'Невідомий колір.';
             }
         }
 
@@ -32,21 +33,23 @@ class SettingsController extends PageController
             'colors' => $this->availableColors,
             'currentColor' => $_SESSION['bg_color'] ?? '#f9fafb',
             'message' => $message,
+            'error' => $error,
         ], 'Колір фону');
     }
 
     public function action_greeting(): void
     {
         $message = '';
+        $error = '';
 
         if ($this->request->isPost()) {
             $name = trim($this->request->post('greeting_name', ''));
             $gender = $this->request->post('greeting_gender', '');
 
             if ($name === '') {
-                $message = "Ім'я не може бути порожнім.";
+                $error = "Ім'я не може бути порожнім.";
             } elseif (!in_array($gender, ['male', 'female'], true)) {
-                $message = 'Оберіть стать.';
+                $error = 'Оберіть стать.';
             } else {
                 setcookie('greeting_name', $name, time() + 30 * 24 * 3600, '/');
                 setcookie('greeting_gender', $gender, time() + 30 * 24 * 3600, '/');
@@ -60,6 +63,7 @@ class SettingsController extends PageController
 
         $this->render('settings/greeting', [
             'message' => $message,
+            'error' => $error,
             'currentName' => $_COOKIE['greeting_name'] ?? '',
             'currentGender' => $_COOKIE['greeting_gender'] ?? '',
         ], 'Привітання (Cookie)');

@@ -1,5 +1,6 @@
 <?php
 $message = $message ?? '';
+$error = $error ?? '';
 $currentName = $currentName ?? '';
 $currentGender = $currentGender ?? '';
 ?>
@@ -7,6 +8,10 @@ $currentGender = $currentGender ?? '';
 <h1>Привітання (Cookie)</h1>
 
 <p>Введіть ваше ім'я та стать. Дані зберігаються в <code>cookie</code> (30 днів) та відображаються у шапці на всіх сторінках.</p>
+
+<?php if ($error !== ''): ?>
+    <div class="alert alert--error"><?= htmlspecialchars($error) ?></div>
+<?php endif; ?>
 
 <?php if ($message !== ''): ?>
     <div class="alert alert--success"><?= htmlspecialchars($message) ?></div>

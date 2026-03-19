@@ -7,7 +7,7 @@ class GuestbookController extends PageController
     public function __construct()
     {
         parent::__construct();
-        $this->filePath = DATA_DIR . '/comments.txt';
+        $this->filePath = DATA_DIR . '/comments.jsonl';
     }
 
     public function action_index(): void
@@ -27,9 +27,14 @@ class GuestbookController extends PageController
             }
 
             if (empty($errors)) {
-                $date = date('Y-m-d H:i');
-                $line = $date . '|' . str_replace('|', ' ', $name) . '|' . str_replace('|', ' ', $comment) . PHP_EOL;
-                file_put_contents($this->filePath, $line, FILE_APPEND | LOCK_EX);
+                $name = str_replace(["\r", "\n"], ' ', $name);
+                $comment = str_replace(["\r", "\n"], ' ', $comment);
+                $entry = json_encode([
+                    'date' => date('Y-m-d H:i'),
+                    'name' => $name,
+                    'comment' => $comment,
+                ], JSON_UNESCAPED_UNICODE);
+                file_put_contents($this->filePath, $entry . PHP_EOL, FILE_APPEND | LOCK_EX);
                 $message = 'Коментар додано!';
             }
         }
@@ -54,13 +59,9 @@ class GuestbookController extends PageController
         $lines = file($this->filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
 
         foreach ($lines as $line) {
-            $parts = explode('|', $line, 3);
-            if (count($parts) === 3) {
-                $comments[] = [
-                    'date' => $parts[0],
-                    'name' => $parts[1],
-                    'comment' => $parts[2],
-                ];
+            $entry = json_decode($line, true);
+            if (is_array($entry) && isset($entry['date'], $entry['name'], $entry['comment'])) {
+                $comments[] = $entry;
             }
         }
 
