@@ -30,7 +30,7 @@ $error = $error ?? '';
     </div>
 
     <div class="form__actions">
-        <button type="submit" class="btn" style="background-color: #ef4444">Видалити каталог</button>
+        <button type="submit" class="btn btn--danger">Видалити каталог</button>
         <a href="index.php?route=folder/create" class="btn btn--secondary">Назад до створення</a>
     </div>
 </form>

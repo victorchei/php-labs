@@ -23,7 +23,8 @@ class Database
                     self::$instance->exec('PRAGMA foreign_keys = ON');
                 }
             } catch (PDOException $e) {
-                die('Помилка підключення до БД: ' . $e->getMessage());
+                error_log('DB connection error: ' . $e->getMessage());
+                die('Помилка підключення до бази даних.');
             }
         }
 
