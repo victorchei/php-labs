@@ -1,6 +1,6 @@
 <?php
 
-session_start();
+session_start(['cookie_httponly' => true, 'cookie_samesite' => 'Lax']);
 
 define('ROOT_DIR', dirname(__DIR__));
 define('CLASSES_DIR', ROOT_DIR . '/classes');

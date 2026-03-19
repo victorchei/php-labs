@@ -32,6 +32,7 @@ $navItems = [
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body style="background-color: <?= htmlspecialchars($bgColor) ?>">
+    <a href="#main-content" class="skip-link">Перейти до вмісту</a>
     <header class="header">
         <div class="container">
             <div class="header__inner">
@@ -65,12 +66,12 @@ $navItems = [
             </nav>
         </div>
     </header>
-    <main class="main">
+    <main class="main" id="main-content">
         <div class="container">
             <?php
             if (!empty($_SESSION['flash_success'])):
                 $flash = $_SESSION['flash_success'];
                 unset($_SESSION['flash_success']);
             ?>
-                <div class="alert alert--success"><?= htmlspecialchars($flash) ?></div>
+                <div class="alert alert--success" role="alert"><?= htmlspecialchars($flash) ?></div>
             <?php endif; ?>

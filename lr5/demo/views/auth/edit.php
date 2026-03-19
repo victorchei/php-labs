@@ -18,9 +18,9 @@ $errors = $errors ?? [];
 
 <form method="POST" action="index.php?route=auth/edit" class="form">
     <div class="form__group">
-        <label class="form__label">Логін</label>
-        <input type="text" class="form__input" value="<?= htmlspecialchars($user['login'] ?? '') ?>" disabled>
-        <span class="form__error" style="color: #6b7280">Логін змінити не можна</span>
+        <label for="edit_login" class="form__label">Логін</label>
+        <input type="text" id="edit_login" class="form__input" value="<?= htmlspecialchars($user['login'] ?? '') ?>" disabled>
+        <span class="form__hint">Логін змінити не можна</span>
     </div>
 
     <div class="form__group <?= isset($errors['email']) ? 'form__group--error' : '' ?>">
@@ -60,8 +60,8 @@ $errors = $errors ?? [];
         </div>
     </div>
 
-    <div class="form__group">
-        <span class="form__label">Стать</span>
+    <fieldset class="form__group form__fieldset">
+        <legend class="form__label">Стать</legend>
         <div class="form__radio-group">
             <label class="form__radio">
                 <input type="radio" name="gender" value="male"
@@ -74,7 +74,7 @@ $errors = $errors ?? [];
                 <span>Жіноча</span>
             </label>
         </div>
-    </div>
+    </fieldset>
 
     <div class="form__group">
         <label for="edit_about" class="form__label">Про себе</label>

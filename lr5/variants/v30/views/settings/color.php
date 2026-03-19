@@ -34,4 +34,4 @@ $error = $error ?? '';
     </div>
 </form>
 
-<p class="text-muted" style="margin-top: 16px">Модуль успадковано з ЛР4. Також доступне <a href="index.php?route=settings/greeting">привітання через Cookie</a>.</p>
+<p class="text-muted text-muted--mt">Модуль успадковано з ЛР4. Також доступне <a href="index.php?route=settings/greeting">привітання через Cookie</a>.</p>

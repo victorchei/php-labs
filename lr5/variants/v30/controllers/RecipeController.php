@@ -22,6 +22,11 @@ class RecipeController extends PageController
 
     public function action_create(): void
     {
+        if (!isset($_SESSION['user_id'])) {
+            $this->redirect('auth/login');
+            return;
+        }
+
         $errors = [];
         $old = [];
 
@@ -57,6 +62,11 @@ class RecipeController extends PageController
 
     public function action_edit(): void
     {
+        if (!isset($_SESSION['user_id'])) {
+            $this->redirect('auth/login');
+            return;
+        }
+
         $id = (int)$this->request->get('id', 0);
 
         if ($id <= 0) {
@@ -110,6 +120,11 @@ class RecipeController extends PageController
 
     public function action_delete(): void
     {
+        if (!isset($_SESSION['user_id'])) {
+            $this->redirect('auth/login');
+            return;
+        }
+
         if ($this->request->isPost()) {
             $id = (int)$this->request->post('id', 0);
 

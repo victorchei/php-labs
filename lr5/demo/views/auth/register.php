@@ -92,8 +92,8 @@ $old = $old ?? [];
         </div>
     </div>
 
-    <div class="form__group">
-        <span class="form__label">Стать</span>
+    <fieldset class="form__group form__fieldset">
+        <legend class="form__label">Стать</legend>
         <div class="form__radio-group">
             <label class="form__radio">
                 <input type="radio" name="gender" value="male"
@@ -106,7 +106,7 @@ $old = $old ?? [];
                 <span>Жіноча</span>
             </label>
         </div>
-    </div>
+    </fieldset>
 
     <div class="form__group">
         <label for="reg_about" class="form__label">Про себе</label>

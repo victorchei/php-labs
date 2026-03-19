@@ -41,6 +41,7 @@ class AuthController extends PageController
                     ':about' => trim($old['about'] ?? ''),
                 ]);
 
+                session_regenerate_id(true);
                 $_SESSION['user_id'] = $this->db->lastInsertId();
                 $_SESSION['user_login'] = trim($old['login']);
                 $this->redirect('auth/profile');
@@ -75,6 +76,7 @@ class AuthController extends PageController
                 $user = $stmt->fetch();
 
                 if ($user && password_verify($password, $user['password'])) {
+                    session_regenerate_id(true);
                     $_SESSION['user_id'] = $user['id'];
                     $_SESSION['user_login'] = $user['login'];
                     $this->redirect('auth/profile');
@@ -102,7 +104,7 @@ class AuthController extends PageController
         $user = $stmt->fetch();
 
         if (!$user) {
-            $this->actionLogout();
+            $this->action_logout();
             return;
         }
 
@@ -123,7 +125,7 @@ class AuthController extends PageController
         $user = $stmt->fetch();
 
         if (!$user) {
-            $this->actionLogout();
+            $this->action_logout();
             return;
         }
 

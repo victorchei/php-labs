@@ -3,7 +3,8 @@
 class UploadController extends PageController
 {
     private string $uploadDir;
-    private array $allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    private array $allowedMimeTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+    private array $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
     private int $maxSize = 5 * 1024 * 1024; // 5 MB
 
     public function __construct()
@@ -26,12 +27,18 @@ class UploadController extends PageController
 
             if ($file['error'] !== UPLOAD_ERR_OK) {
                 $error = 'Помилка завантаження файлу (код: ' . $file['error'] . ').';
-            } elseif (!in_array($file['type'], $this->allowedTypes, true)) {
-                $error = 'Дозволені формати: JPEG, PNG, GIF, WebP.';
             } elseif ($file['size'] > $this->maxSize) {
                 $error = 'Максимальний розмір файлу: 5 МБ.';
             } else {
-                $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+                $finfo = new finfo(FILEINFO_MIME_TYPE);
+                $realType = $finfo->file($file['tmp_name']);
+                if (!in_array($ext, $this->allowedExtensions, true) || !in_array($realType, $this->allowedMimeTypes, true)) {
+                    $error = 'Дозволені формати: JPEG, PNG, GIF, WebP.';
+                }
+            }
+            if ($error === '' && isset($file) && $file['error'] === UPLOAD_ERR_OK) {
+                $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
                 $safeName = time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
                 $dest = $this->uploadDir . '/' . $safeName;
 

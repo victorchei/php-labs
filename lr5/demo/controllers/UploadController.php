@@ -24,14 +24,25 @@ class UploadController extends PageController
         if ($this->request->isPost() && isset($_FILES['image'])) {
             $file = $_FILES['image'];
 
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+
             if ($file['error'] !== UPLOAD_ERR_OK) {
                 $error = 'Помилка завантаження файлу (код: ' . $file['error'] . ').';
-            } elseif (!in_array($file['type'], $this->allowedTypes, true)) {
-                $error = 'Дозволені формати: JPEG, PNG, GIF, WebP.';
-            } elseif ($file['size'] > $this->maxSize) {
-                $error = 'Максимальний розмір файлу: 5 МБ.';
             } else {
-                $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $finfo = new finfo(FILEINFO_MIME_TYPE);
+                $realType = $finfo->file($file['tmp_name']);
+                $ext = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+
+                if (!in_array($realType, $this->allowedTypes, true)) {
+                    $error = 'Дозволені формати: JPEG, PNG, GIF, WebP.';
+                } elseif (!in_array($ext, $allowedExtensions, true)) {
+                    $error = 'Недозволене розширення файлу.';
+                } elseif ($file['size'] > $this->maxSize) {
+                    $error = 'Максимальний розмір файлу: 5 МБ.';
+                }
+            }
+
+            if ($error === '' && isset($ext)) {
                 $safeName = time() . '_' . bin2hex(random_bytes(4)) . '.' . $ext;
                 $dest = $this->uploadDir . '/' . $safeName;
 

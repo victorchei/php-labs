@@ -25,7 +25,7 @@ class FolderController extends PageController
 
             if ($login === '' || $password === '') {
                 $error = 'Логін та пароль є обов\'язковими.';
-            } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $login)) {
+            } elseif (!preg_match('/^[a-zA-Z0-9_]{1,64}$/', $login)) {
                 $error = 'Логін може містити лише латинські літери, цифри та _';
             } else {
                 $userDir = $this->usersDir . '/' . $login;
@@ -74,6 +74,8 @@ class FolderController extends PageController
 
             if ($login === '' || $password === '') {
                 $error = 'Логін та пароль є обов\'язковими.';
+            } elseif (!preg_match('/^[a-zA-Z0-9_]{1,64}$/', $login)) {
+                $error = 'Логін може містити лише латинські літери, цифри та _';
             } else {
                 $userDir = $this->usersDir . '/' . $login;
 
@@ -81,7 +83,9 @@ class FolderController extends PageController
                     $error = "Папку \"{$login}\" не знайдено.";
                 } else {
                     $hashFile = $userDir . '/.password';
-                    if (file_exists($hashFile) && !password_verify($password, file_get_contents($hashFile))) {
+                    if (!file_exists($hashFile)) {
+                        $error = 'Файл пароля не знайдено. Видалення неможливе.';
+                    } elseif (!password_verify($password, file_get_contents($hashFile))) {
                         $error = 'Невірний пароль.';
                     } else {
                         $this->deleteDirectory($userDir);

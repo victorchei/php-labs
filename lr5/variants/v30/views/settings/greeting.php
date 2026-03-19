@@ -32,8 +32,8 @@ $currentGender = $currentGender ?? '';
                placeholder="Введіть ваше ім'я">
     </div>
 
-    <div class="form__group">
-        <span class="form__label">Стать <span class="required">*</span></span>
+    <fieldset class="form__group form__fieldset">
+        <legend class="form__label">Стать <span class="required">*</span></legend>
         <div class="form__radio-group">
             <label class="form__radio">
                 <input type="radio" name="greeting_gender" value="male"
@@ -46,11 +46,11 @@ $currentGender = $currentGender ?? '';
                 <span>Жіноча (пані)</span>
             </label>
         </div>
-    </div>
+    </fieldset>
 
     <div class="form__actions">
         <button type="submit" class="btn">Зберегти в Cookie</button>
     </div>
 </form>
 
-<p class="text-muted" style="margin-top: 16px">Модуль успадковано з ЛР4. Також доступна <a href="index.php?route=settings/color">зміна кольору фону</a>.</p>
+<p class="text-muted text-muted--mt">Модуль успадковано з ЛР4. Також доступна <a href="index.php?route=settings/color">зміна кольору фону</a>.</p>
