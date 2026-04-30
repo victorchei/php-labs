@@ -11,55 +11,55 @@
 ## 0. З чого починати — 3 рішення перед кодом
 
 | Крок | Питання | Результат |
-|------|---------|-----------|
+| ---- | ------- | --------- |
 | 1 | Яка тема? (з [Додатку И](Метод_реком_бекенд122.pdf) або своя) | Назва системи |
-| 2 | Який тип доступу? (див. § 1) | Тип A/B/C/D |
+| 2 | Який тип системи? (визначається у [functionality-flow.md](functionality-flow.md)) | Тип A/B/C/D/E |
 | 3 | Laravel чи vanilla PHP? (див. § 7) | Стек |
 
 Тільки після цих 3 рішень — БД → міграції → код.
 
 ---
 
-## 1. Класифікація системи — flow для вибору типу
+## 1. Мапа типів системи до цього документа
 
-```mermaid
-flowchart TD
-    Q1{Хто основний користувач?}
-    Q1 -->|Широка публіка| Q2{Чи є платіжні/замовлення?}
-    Q1 -->|Внутрішні співробітники| C[Тип C — Закрита<br/>CRM / HRM / Облік]
-    Q1 -->|Мобільний додаток / інша система| D[Тип D — API-only]
+Класифікація більше **не дублюється окремо** в цьому файлі. Спочатку визнач тип у [functionality-flow.md](functionality-flow.md), а тут відкривай відповідний розділ реалізації.
 
-    Q2 -->|Так, продаж/бронювання| A[Тип A — Відкрита транзакційна<br/>Магазин / Бронювання]
-    Q2 -->|Ні, користувачі створюють контент| B[Тип B — Відкрита комʼюніті<br/>Форум / Соцмережа / Блог з реєстрацією]
-    Q2 -->|Ні, тільки перегляд| A2[Тип A' — Каталог / Портал<br/>Новини / Візитка / Блог без реєстрації]
-```
+| Тип у [functionality-flow.md](functionality-flow.md) | Що це означає | Де читати в цьому файлі |
+| --- | --- | --- |
+| A — Shop | продаж товарів або послуг без слотів | § 3.A |
+| B — Booking | бронювання часу, ресурсу, майстра | § 3.B |
+| C — Catalog | каталог або портал без транзакцій | § 3.C |
+| D — Community | UGC, пости, коментарі, модерація | § 3.D |
+| E — Internal | закрита CRM / HRM / облік | § 3.E |
 
-**4 типи = 4 різні набори обовʼязкових блоків.** Вибрали тип → йдіть у § 3.
+**API-first / headless** тут розглядається не як окремий студентський тип, а як **спосіб доставки** для будь-якого з типів A-E. Якщо потрібен JSON API замість Blade, див. § 3.F.
 
 ---
 
 ## 2. Ролі за типами
 
 | Тип | Гість | Користувач | Менеджер/Модератор | Адмін |
-|-----|-------|------------|--------------------|-------|
-| A. Магазин | ✓ (огляд + кошик) | ✓ (замовлення) | — (опц. оператор) | ✓ |
-| A'. Каталог/портал | ✓ (огляд) | — або опц. (підписка) | — | ✓ (контент) |
-| B. Комʼюніті | ✓ (обмежено) | ✓ (створює контент) | ✓ (модерація) | ✓ |
-| C. Закрита (CRM) | — | ✓ (свої дані) | ✓ (команда) | ✓ |
-| D. API | Token guest (опц.) | Token user | — | Token admin + окрема панель |
+| --- | ----- | ---------- | ------------------ | ----- |
+| A. Shop | ✓ (огляд + кошик) | ✓ (замовлення) | — (опц. оператор) | ✓ |
+| B. Booking | ✓ (перегляд послуг) | ✓ (бронювання) | — або опц. оператор | ✓ |
+| C. Catalog | ✓ (огляд) | — або опц. (обране/резерв) | — | ✓ (контент) |
+| D. Community | ✓ (читання) | ✓ (створює контент) | ✓ (модерація) | ✓ |
+| E. Internal | — | ✓ (свої дані) | ✓ (команда) | ✓ |
 
 **Ролі в БД:** поле `users.role` (enum) АБО окрема таблиця `roles` + pivot. Для курсової достатньо enum: `admin`, `manager`, `user`.
+
+Для **API-first / headless** ці самі ролі лишаються, але авторизація йде через токени (`Sanctum`) і права перевіряються через middleware / policies / abilities.
 
 ---
 
 ## 3. Обовʼязкові блоки за типом
 
-### 3.A Тип A — Відкрита транзакційна (магазин, бронювання)
+### 3.A Тип A — Shop (магазин, замовлення, кошик)
 
-#### Сторінки / модулі
+#### Сторінки / модулі Shop
 
 | Блок | Гість | Юзер | Адмін | Примітка |
-|------|-------|------|-------|----------|
+| ---- | ----- | ----- | ----- | -------- |
 | Головна (banner + popular) | ✓ | ✓ | ✓ | |
 | Каталог (list) | ✓ | ✓ | ✓ | пагінація обовʼязково |
 | Пошук + фільтр (категорія, ціна) | ✓ | ✓ | ✓ | GET-параметри |
@@ -78,7 +78,7 @@ flowchart TD
 
 #### БД (мінімум 5 таблиць з FK)
 
-```
+```text
 users(id, name, email, password, phone, address, role, created_at)
 categories(id, name, slug, parent_id FK nullable)
 products(id, category_id FK, name, slug, description, price, stock, image, is_active)
@@ -90,12 +90,44 @@ order_items(id, order_id FK, product_id FK, quantity, price_at_moment)
 
 ---
 
-### 3.A' Тип A' — Каталог/портал (новини, візитка, блог-read)
+### 3.B Тип B — Booking (бронювання часу, ресурсу, майстра)
+
+#### Сторінки / модулі Booking
+
+| Блок | Гість | Юзер | Адмін | Примітка |
+| ---- | ----- | ----- | ----- | -------- |
+| Головна / landing | ✓ | ✓ | ✓ | короткий опис послуг |
+| Список послуг | ✓ | ✓ | ✓ | категорії, ціна, тривалість |
+| Список майстрів / лікарів / ресурсів | ✓ | ✓ | ✓ | фото, спеціалізація, графік |
+| Форма бронювання | — | ✓ | — | дата + час + послуга + майстер |
+| Мої бронювання | — | ✓ | — | історія, статус, скасування |
+| Реєстрація / Логін / Logout | ✓ | — | — | Breeze |
+| Профіль | — | ✓ | ✓ | телефон, коментар, історія |
+| **Admin Dashboard** | — | — | ✓ | лічильники по слотах і статусах |
+| **Admin: CRUD послуг** | — | — | ✓ | ціна, тривалість, активність |
+| **Admin: CRUD майстрів / ресурсів** | — | — | ✓ | спеціалізація, графік |
+| **Admin: бронювання** | — | — | ✓ | pending → confirmed → done/cancelled |
+
+#### БД для booking-системи
+
+```text
+users(id, name, email, password, phone, role, created_at)
+services(id, name, slug, description, duration_min, price, is_active)
+masters(id, name, specialization, bio, photo, is_active)
+bookings(id, user_id FK, service_id FK, master_id FK, booking_date, booking_time, status, notes)
+schedule_slots(id, master_id FK, weekday, start_time, end_time, is_active)  -- або генеровані слоти
+```
+
+Критично для цього типу: перевірка зайнятості слоту **до INSERT**, унікальність `(master_id, booking_date, booking_time)` і окремий екран керування статусами.
+
+---
+
+### 3.C Тип C — Каталог/портал (новини, візитка, блог-read)
 
 #### Блоки
 
 | Блок | Гість | Редактор | Адмін |
-|------|-------|----------|-------|
+| ---- | ----- | -------- | ----- |
 | Головна | ✓ | ✓ | ✓ |
 | Список статей/новин | ✓ | ✓ | ✓ |
 | Стаття (детальна) | ✓ | ✓ | ✓ |
@@ -108,9 +140,9 @@ order_items(id, order_id FK, product_id FK, quantity, price_at_moment)
 | Модерація коментарів | — | — | ✓ |
 | CRUD користувачів-редакторів | — | — | ✓ |
 
-#### БД
+#### БД для каталогу/порталу
 
-```
+```text
 users(role: editor/admin)
 posts(id, user_id FK, category_id FK, title, slug, excerpt, body, image, published_at)
 categories(id, name, slug)
@@ -121,10 +153,10 @@ contact_messages(id, name, email, subject, body, read_at)
 
 ---
 
-### 3.B Тип B — Комʼюніті (форум, соцмережа, дошка оголошень)
+### 3.D Тип D — Комʼюніті (форум, соцмережа, дошка оголошень)
 
 | Блок | Гість | Юзер | Модератор | Адмін |
-|------|-------|------|-----------|-------|
+| ---- | ----- | ----- | --------- | ----- |
 | Стрічка / список постів | ✓ | ✓ | ✓ | ✓ |
 | Пост / тема | ✓ | ✓ | ✓ | ✓ |
 | Створити пост | — | ✓ | ✓ | ✓ |
@@ -139,9 +171,9 @@ contact_messages(id, name, email, subject, body, read_at)
 
 Використати **Policy** в Laravel — автор може редагувати свій пост, модератор будь-який.
 
-#### БД
+#### БД для комʼюніті
 
-```
+```text
 users(role)
 posts(id, user_id FK, category_id FK, title, body, created_at)
 comments(id, post_id FK, user_id FK, body)
@@ -152,12 +184,12 @@ bans(id, user_id FK, admin_id FK, reason, until)
 
 ---
 
-### 3.C Тип C — Закрита внутрішня (CRM, HRM, облік)
+### 3.E Тип E — Закрита внутрішня (CRM, HRM, облік)
 
 **Без гостьового доступу. Логін на головній сторінці.**
 
 | Блок | Юзер | Менеджер | Адмін |
-|------|------|----------|-------|
+| ---- | ---- | -------- | ----- |
 | Логін (головна) | ✓ | ✓ | ✓ |
 | Dashboard (особисті метрики) | ✓ | ✓ | ✓ |
 | Мої записи (клієнти / задачі / співробітники) | ✓ | ✓ | ✓ |
@@ -171,7 +203,7 @@ bans(id, user_id FK, admin_id FK, reason, until)
 
 #### БД (приклад CRM)
 
-```
+```text
 users(role, department_id FK)
 departments(id, name, head_id FK)
 clients(id, assigned_to FK -> users, name, email, phone, status)
@@ -181,7 +213,9 @@ tasks(id, user_id FK, deal_id FK nullable, title, due_at, done_at)
 
 ---
 
-### 3.D Тип D — API-only (headless)
+### 3.F API-first / headless (опційний overlay для A-E)
+
+Якщо студент будує **API-only** систему або хоче віддати частину функціоналу через JSON, це не замінює базовий тип A-E, а накладається поверх нього.
 
 - Auth: **Laravel Sanctum** (token) або Passport (OAuth)
 - Всі маршрути в `routes/api.php`
@@ -191,7 +225,8 @@ tasks(id, user_id FK, deal_id FK nullable, title, due_at, done_at)
 - Адмінка: або окремі API-endpoints, або `Filament/Nova` як бонус
 
 Обовʼязкові ендпоінти для будь-якого API:
-```
+
+```text
 POST /api/auth/register
 POST /api/auth/login
 POST /api/auth/logout
@@ -225,8 +260,8 @@ DELETE /api/<resource>/{id}   (delete)
 
 ## 5. Структура Laravel-проекту
 
-```
-coursework-<прізвище>/
+```text
+coursework-project/
 ├── app/
 │   ├── Models/                    # User, Product, Order, Category...
 │   ├── Http/
@@ -236,8 +271,8 @@ coursework-<прізвище>/
 │   │   │   └── Site/              # HomeController, CatalogController, CartController
 │   │   ├── Requests/              # StoreProductRequest, UpdateProductRequest
 │   │   ├── Middleware/            # IsAdmin.php (перевірка ролі)
-│   │   └── Resources/             # API (якщо тип D)
-│   ├── Policies/                  # ProductPolicy, PostPolicy (для типу B)
+│   │   └── Resources/             # API (якщо потрібен headless / mobile-клієнт)
+│   ├── Policies/                  # ProductPolicy, PostPolicy (для типу D)
 │   └── Providers/
 ├── database/
 │   ├── migrations/                # по одній на таблицю
@@ -283,8 +318,8 @@ coursework-<прізвище>/
 Календарний план з методички (Додаток Б):
 
 | Тиждень | Етап | Що зробити | Deliverable |
-|---------|------|-----------|-------------|
-| 1 (01.03) | Постановка задачі | Вибір теми, тип системи (A/B/C/D) | `README.md` з темою |
+| ------- | ---- | ----------- | ----------- |
+| 1 (01.03) | Постановка задачі | Вибір теми, тип системи (A/B/C/D/E) | `README.md` з темою |
 | 2 (13.03) | Аналіз аналогів | 3-5 подібних сайтів (розетка, епіцентр, etc.) — скрін + опис | розділ 1.2 ПЗ |
 | 2 (14.03) | Технічне завдання | Заповнити [Додаток Ж](Метод_реком_бекенд122.pdf) (функції, часові хар-ки) | `docs/tz.md` |
 | 3 (20.03) | Опрацювання джерел | 10-15 джерел ДСТУ 8302:2015 | `docs/references.md` |
@@ -299,7 +334,7 @@ coursework-<прізвище>/
 
 **Порядок виконання (не змінювати):**
 
-1. `composer create-project laravel/laravel coursework-<name>`
+1. `composer create-project laravel/laravel coursework-project`
 2. `php artisan breeze:install blade` (auth готовий)
 3. Створити міграції по черзі (згори вниз від батьківських):
    - `users` (розширити: role, phone, address)
@@ -319,6 +354,7 @@ coursework-<прізвище>/
    - `CartController` (session-based для гостя)
    - `OrderController@store` (тільки для auth)
 10. **Middleware IsAdmin** + **роут-група admin:**
+
     ```php
     Route::middleware(['auth', 'admin'])->prefix('admin')->group(function(){
         Route::resource('products', Admin\ProductController::class);
@@ -326,6 +362,7 @@ coursework-<прізвище>/
         Route::resource('orders', Admin\OrderController::class)->only(['index','show','update']);
     });
     ```
+
 11. **Admin Blade layout** (бічне меню, відрізняється від site layout)
 12. **Upload зображень:** `$request->file('image')->store('products','public')`
 13. **Валідація** → `FormRequest` класи
@@ -337,7 +374,7 @@ coursework-<прізвище>/
 ## 7. Laravel VS vanilla PHP — рішення
 
 | Критерій | Laravel | Vanilla PHP MVC (як LR4-5) |
-|----------|---------|----------------------------|
+| -------- | ------- | -------------------------- |
 | Offсет на ЛР6 | ✓ пряме продовження | ✗ втрачається синергія |
 | Auth (реєстр/логін/скинути пароль) | Breeze за 5 хв | ~300 рядків руками |
 | Міграції | artisan | SQL файли руками |
@@ -348,7 +385,7 @@ coursework-<прізвище>/
 | Час на курсову | ~60% менше | — |
 | Рейтинг серед викладачів | очікувана норма | нижче (простіше ≠ краще оцінюється) |
 
-**Рекомендація: Laravel.** Vanilla PHP лише для найпростіших тем (Тип A', візитка/портфоліо) та якщо студент дуже впевнений у власному коді.
+**Рекомендація: Laravel.** Vanilla PHP лише для найпростіших тем типу **Catalog** або дуже невеликого інформаційного порталу, і тільки якщо студент справді впевнений у власному MVC-коді.
 
 ---
 
@@ -356,7 +393,7 @@ coursework-<прізвище>/
 
 ### README.md (обовʼязково)
 
-```markdown
+````markdown
 # <Тема>
 
 Курсова робота з дисципліни "Серверні технології та бекенд-розробка"
@@ -392,18 +429,20 @@ php artisan storage:link
 php artisan serve
 ```
 
+````
+
 ## Скріншоти
-![Головна](docs/screenshots/home.png)
-![Admin](docs/screenshots/admin.png)
+
+**Рекомендація:** створити `docs/screenshots/` з PNG-файлами головної сторінки, admin-панелі, ключових вікон.
 
 ## Структура
-Див. [docs/architecture.md](docs/architecture.md)
-```
+
+Рекомендується окремий файл `docs/architecture.md` з описом компонентів і модулів.
 
 ### docs/ (рекомендовано)
 
 | Файл | Вміст |
-|------|-------|
+| ---- | ----- |
 | `docs/er-diagram.png` | експорт з DBDiagram.io / dbdesigner / PlantUML |
 | `docs/routes.md` | таблиця усіх маршрутів (URL, Controller@method, middleware) |
 | `docs/architecture.md` | схема компонентів, опис модулів |
@@ -412,7 +451,7 @@ php artisan serve
 
 ### .env.example (обовʼязково, без секретів)
 
-```
+```dotenv
 APP_NAME="<Тема>"
 APP_URL=http://localhost:8000
 
@@ -472,7 +511,7 @@ MAIL_PASSWORD=
 ## 11. Бонус-модулі (+бали на захисті)
 
 | Модуль | Складність | Балів | Бібліотека |
-|--------|-----------|-------|-----------|
+| ------ | ---------- | ----- | ---------- |
 | i18n (UA + EN) | низька | +2 | native Laravel `lang/` |
 | Email на реєстрацію + замовлення | низька | +2 | Mailable + Mailtrap |
 | Datatables.net (серверний режим) | середня | +3 | yajra/laravel-datatables |
@@ -489,7 +528,7 @@ MAIL_PASSWORD=
 
 ## 12. Git-workflow для курсової
 
-```
+```text
 main                ← стабільна версія, теги v0.1, v0.2...
 └── dev             ← робоча гілка
     ├── feat/auth
@@ -500,6 +539,7 @@ main                ← стабільна версія, теги v0.1, v0.2...
 ```
 
 **Коміти:**
+
 - `feat(auth): add Breeze + role migration`
 - `feat(catalog): add pagination and filters`
 - `fix(cart): fix quantity update on session`
@@ -507,12 +547,12 @@ main                ← стабільна версія, теги v0.1, v0.2...
 
 ---
 
-## 13. Розширення цього файлу
+## 13. Додаткові опори
 
-Файл — **живий**, наповнюється по мірі уточнення вимог. Що додаємо далі:
+Коли абстрактних правил недостатньо і треба побачити, як зібрати повну курсову під реальну тему, використовуйте такі документи:
 
-- [ ] Детальні блоки для конкретної теми (коли буде вибір)
-- [ ] Приклади коду для типових патернів (Cart, Policy, FormRequest)
-- [ ] Шаблон `routes.md`
-- [ ] Шаблон ER-діаграми (для копіювання в DBDiagram)
-- [ ] Чеклист захисту (питання комісії)
+- [theme-blueprints.md](theme-blueprints.md) — готові playbook-и для Книгарні, Стоматології, Музею, Кулінарного блогу, CRM
+- [code-patterns.md](code-patterns.md) — короткі шаблони Cart, Policy, FormRequest
+- [routes-template.md](routes-template.md) — шаблон документації маршрутів
+- [er-diagram-template.md](er-diagram-template.md) — стартові шаблони ER-діаграм
+- [defense-checklist.md](defense-checklist.md) — сценарій фінального показу і питання комісії
