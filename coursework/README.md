@@ -21,35 +21,45 @@
 
 Усі файли згруповано за роллю в процесі виконання роботи:
 
-| Категорія | Роль | Документи |
-|-----------|------|-----------|
-| 🎯 **Завдання** | Що і як оцінюється | [assignment.md](assignment.md) |
-| 🏗 **Проєктування** | Як спроєктувати систему | [system-design.md](system-design.md), [functionality-flow.md](functionality-flow.md), [feature-catalog.md](feature-catalog.md) |
-| 🗄 **База даних — реалізація** | Як побудувати БД | [schemas.md](schemas.md), [er-diagrams.md](er-diagrams.md), [migrations-seeders-example.md](migrations-seeders-example.md) |
-| ✅ **База даних — якість** | Як не втратити бали | [checklist-lr4.md](checklist-lr4.md), [typical-mistakes.md](typical-mistakes.md) |
-| 💬 **База даних — захист** | Як пройти демонстрацію | [example-queries.md](example-queries.md) |
-| 🛤 **Стратегія на курс** | Як одну схему довести до курсової | [evolution-path.md](evolution-path.md) |
-| 📄 **Офіційна методичка** | Джерело вимог | [Метод_реком_бекенд122.pdf](Метод_реком_бекенд122.pdf) |
+- 🎯 **Завдання**: що і як оцінюється.
+    [assignment.md](assignment.md), [defense-checklist.md](defense-checklist.md)
+- 🏗 **Проєктування**: як спроєктувати систему.
+    [system-design.md](system-design.md), [functionality-flow.md](functionality-flow.md), [feature-catalog.md](feature-catalog.md), [routes-template.md](routes-template.md), [er-diagram-template.md](er-diagram-template.md), [theme-blueprints.md](theme-blueprints.md)
+- 🗄 **База даних — реалізація**: як побудувати БД.
+    [schemas.md](schemas.md), [er-diagrams.md](er-diagrams.md), [migrations-seeders-example.md](migrations-seeders-example.md)
+- ✅ **База даних — якість**: як не втратити бали.
+    [checklist-lr4.md](checklist-lr4.md), [typical-mistakes.md](typical-mistakes.md)
+- 💬 **База даних — захист**: як пройти демонстрацію.
+    [example-queries.md](example-queries.md)
+- 🧩 **Шаблони реалізації**: що копіювати як старт.
+    [code-patterns.md](code-patterns.md)
+- 🛤 **Стратегія на курс**: як одну схему довести до курсової.
+    [evolution-path.md](evolution-path.md)
+- 📄 **Офіційна методичка**: джерело вимог.
+    [Метод_реком_бекенд122.pdf](Метод_реком_бекенд122.pdf)
 
 ### Повна таблиця файлів
 
-| Файл | Розмір | Що всередині |
-|------|--------|--------------|
-| [README.md](README.md) | — | Цей індекс |
-| [assignment.md](assignment.md) | ~10 КБ | Темплейт курсової: мета, стек (Laravel/vanilla), вимоги, критерії, посилання |
-| [schemas.md](schemas.md) | ~44 КБ | **Центральний довідник БД** — 7 еталонних схем (60/75/90+ рівні) для 5 категорій варіантів |
-| [er-diagrams.md](er-diagrams.md) | ~20 КБ | Mermaid ER-діаграми для 7 референсних варіантів (v1, v3, v4, v7, v14, v20, v30) |
-| [checklist-lr4.md](checklist-lr4.md) | ~16 КБ | Чекліст самоперевірки ЛР4 — 10 блоків, карта балів 60→100 |
-| [typical-mistakes.md](typical-mistakes.md) | ~22 КБ | Антипатерни з коментарями ❌/✅ + втрата балів (Top-5 worst + Top-10 minor) |
-| [example-queries.md](example-queries.md) | ~25 КБ | SQL-запити для демонстрації на захисті — по 5 категоріях + RBAC/audit |
-| [evolution-path.md](evolution-path.md) | ~16 КБ | Роадмапа: як схема з ЛР4 росте в ЛР5 → ЛР6 → курсову (приклад v1) |
-| [migrations-seeders-example.md](migrations-seeders-example.md) | ~27 КБ | Міграції + сідери для v1 Книгарня — vanilla PHP + Laravel, повна реалізація |
-| [feature-catalog.md](feature-catalog.md) | ~34 КБ | Каталог фіч по категоріях (minimum / extended / advanced) |
-| [functionality-flow.md](functionality-flow.md) | ~22 КБ | Юзер-флоу: як користувач проходить сайт (діаграми по категоріях) |
-| [system-design.md](system-design.md) | ~25 КБ | Архітектура рівня «система» — MVC структура, обовʼязкові блоки коду |
-| [Метод_реком_бекенд122.pdf](Метод_реком_бекенд122.pdf) | ~600 КБ | Офіційна методичка ЖДТУ (Додаток З — приклади схем, Додаток И — теми варіантів) |
+- [README.md](README.md): цей індекс.
+- [assignment.md](assignment.md): темплейт курсової, стек, вимоги, критерії, дедлайни, захист.
+- [defense-checklist.md](defense-checklist.md): чекліст перед захистом, сценарій демо, типові питання комісії.
+- [theme-blueprints.md](theme-blueprints.md): готові blueprints для типових тем: магазин, booking, catalog, community, CRM.
+- [schemas.md](schemas.md): центральний довідник БД з 7 еталонними схемами для 5 категорій варіантів.
+- [er-diagrams.md](er-diagrams.md): Mermaid ER-діаграми для 7 референсних варіантів.
+- [er-diagram-template.md](er-diagram-template.md): шаблони ER для Mermaid і DBDiagram.
+- [checklist-lr4.md](checklist-lr4.md): чекліст самоперевірки ЛР4 і карта балів.
+- [typical-mistakes.md](typical-mistakes.md): антипатерни та втрата балів.
+- [example-queries.md](example-queries.md): SQL-запити для демонстрації на захисті.
+- [evolution-path.md](evolution-path.md): як схема з ЛР4 росте в ЛР5, ЛР6 і курсову.
+- [migrations-seeders-example.md](migrations-seeders-example.md): міграції і сідери для v1 Книгарня у vanilla PHP та Laravel.
+- [feature-catalog.md](feature-catalog.md): каталог фіч по категоріях і рівнях складності.
+- [functionality-flow.md](functionality-flow.md): юзер-флоу по категоріях систем.
+- [system-design.md](system-design.md): архітектура рівня системи та обовʼязкові блоки коду.
+- [routes-template.md](routes-template.md): шаблон документації маршрутів для ПЗ і README.
+- [code-patterns.md](code-patterns.md): приклади Cart, Policy і FormRequest для Laravel і vanilla PHP.
+- [Метод_реком_бекенд122.pdf](Метод_реком_бекенд122.pdf): офіційна методичка ЖДТУ з темами і прикладами схем.
 
-**Разом:** 12 `.md` документів + 1 PDF методичка ≈ 260 КБ текстових матеріалів.
+**Разом:** 17 `.md` документів + 1 PDF методичка.
 
 ---
 
@@ -59,7 +69,7 @@
 
 ### Тиждень 1 — Розуміння і вибір
 
-```
+```text
 1. assignment.md          → що треба здати, які бали, які варіанти
 2. feature-catalog.md     → який функціонал вибрати (minimum/extended/advanced)
 3. functionality-flow.md  → як користувач проходить сайт
@@ -67,7 +77,7 @@
 
 ### Тиждень 2 — Проєктування БД (ЛР4)
 
-```
+```text
 4. schemas.md             → вибери еталон для своєї категорії (5 штук)
 5. er-diagrams.md         → візуалізуй звʼязки (Mermaid)
 6. checklist-lr4.md       → пройди чекліст перед захистом
@@ -76,14 +86,14 @@
 
 ### Тиждень 3 — Реалізація БД
 
-```
+```text
 8. migrations-seeders-example.md  → міграції + сідери (vanilla або Laravel)
 9. example-queries.md             → SQL для демонстрації на захисті ЛР4
 ```
 
 ### Тиждень 4+ — Курсова
 
-```
+```text
 10. system-design.md      → MVC архітектура, структура коду
 11. evolution-path.md     → як доростити схему з ЛР4 до курсової
 12. assignment.md         → остаточна звірка з вимогами перед здачею
@@ -105,7 +115,7 @@
 **Карта балів ЛР4:**
 
 | Бали | Що реалізовано |
-|------|----------------|
+| ---- | -------------- |
 | 60–74 | Базова схема 5–7 таблиць + 3 обовʼязкові діаграми |
 | 75–89 | Базова + 3–4 розширення + Use Case |
 | 90–100 | Повний еталон категорії: RBAC + audit_log + soft delete + індекси + UNIQUE + triggers + діаграма класів MVC |
@@ -117,9 +127,14 @@
 Все, що потрібно для повного ПЗ курсової:
 
 - 📋 **[assignment.md](assignment.md)** — вимоги, структура, критерії
+- 🎤 **[defense-checklist.md](defense-checklist.md)** — сценарій фінального показу і питання комісії
 - 🏛 **[system-design.md](system-design.md)** — MVC архітектура, обовʼязкові блоки
 - 🎯 **[feature-catalog.md](feature-catalog.md)** — вибір фіч під бажану оцінку
 - 🌊 **[functionality-flow.md](functionality-flow.md)** — юзер-флоу сайту
+- 🧱 **[theme-blueprints.md](theme-blueprints.md)** — готові набори сторінок, таблиць і ролей для типових тем
+- 🧩 **[code-patterns.md](code-patterns.md)** — патерни Cart / Policy / FormRequest
+- 🗺 **[routes-template.md](routes-template.md)** — шаблон документа `docs/routes.md`
+- 🔧 **[er-diagram-template.md](er-diagram-template.md)** — шаблон ER для копіювання у Mermaid / DBDiagram
 - 🛤 **[evolution-path.md](evolution-path.md)** — як ЛР4 → ЛР5 → ЛР6 складаються в курсову
 - 📄 **[Метод_реком_бекенд122.pdf](Метод_реком_бекенд122.pdf)** — офіційні вимоги методички (Додатки З, И)
 
@@ -127,7 +142,7 @@
 
 ## 🔗 Як документи повʼязані між собою
 
-```
+```text
                     ┌─────────────────┐
                     │  assignment.md  │ ← точка входу
                     └────────┬────────┘
@@ -167,7 +182,7 @@
 
 Ця папка — не ізольована. Вона вбудована в репозиторій лаб:
 
-```
+```text
 php-labs/
 ├── README.md                 ← загальний опис усіх лаб
 ├── docs/
